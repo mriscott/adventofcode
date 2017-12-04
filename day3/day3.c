@@ -1,18 +1,22 @@
 #include <stdio.h>
 #include <math.h>
 
-#define MAXN 277678
-#define MAX 5
+//#define MAXN 277678
+#define MAXN (MAX*MAX)
+#define MAX 100
 #define USEARRAY (MAX*MAX>=MAXN)
+#define PRINTARRAY 0
 int arr[MAX][MAX] ;
 
 void print(){
+  if (PRINTARRAY) {
 	for (int y=0;y<MAX;y++){
 		for (int x=0;x<MAX;x++){
 			printf("%3d ",arr[x][y]);
 		}
 		printf("\n");
 	}
+  }
 }
 void init(){
 	for (int x=0;x<MAX;x++){
@@ -20,6 +24,20 @@ void init(){
 			arr[x][y]=0;
 		}
 	}
+}
+
+int getval(int x, int y){
+  int val=0;
+  int lox = (x>0) ? (x-1) : x;
+  int hix = (x<MAX) ? (x+1) :x;
+  int loy = (y>0) ? (y-1) : y;
+  int hiy = (y<MAX) ? (y+1) : y;
+    for(int xx=lox;xx<=hix;xx++){
+      for(int yy=loy;yy<=hiy;yy++){
+	if(xx!=x|| yy!=y) val+=arr[xx][yy];
+      }
+    }
+  return val;
 }
 
 void main(){
@@ -49,8 +67,10 @@ void main(){
 		x=x+dx;
 		y=y+dy;
 		int d=abs(x-offset)+abs(y-offset);
-		if(USEARRAY || n==MAXN ||n%100==0) printf("%d (%d,%d) -> %d\n",n,x,y,d);
-		if(USEARRAY) arr[x][y]=n;
+		if(USEARRAY) arr[x][y]=getval(x,y);
+		if(USEARRAY || n==MAXN ||n%100==0) printf("%d (%d,%d) -> %d\n",n,x,y,arr[x][y]);
+		if(USEARRAY && (arr[x][y]>277678)) break;
+	       
 		int rotate=0;
 		if(x<minx||x>maxx||y<miny||y>maxy){
 			rotate=1;
@@ -64,6 +84,7 @@ void main(){
 		if (x>maxx) maxx=x;
 		if (y>maxy) maxy=y;
 		if(USEARRAY && (x==-1 || x== MAX || y==-1||y==MAX)) break;
+
 	}
 
  	if(USEARRAY) print();
