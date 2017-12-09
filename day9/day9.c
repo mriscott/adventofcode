@@ -7,6 +7,7 @@ int process(char * input){
 	int grouplevel=0;
 	int nogroups=0;
 	int garbage=0;
+	int score=0;
 	
 	for (char *x=input;*x!=0;x++){
 		if(garbage==1 && *x!='>' && *x!='!') continue;
@@ -27,6 +28,7 @@ int process(char * input){
 		case '{':
 			grouplevel++;
 			nogroups++;
+			score+=grouplevel;
 			break;
 		case '}':
 			grouplevel--;
@@ -37,7 +39,7 @@ int process(char * input){
 		printf("Invalid input\n");
 		exit(0);
 	}
-	return nogroups;
+	return score;
 
 }
 
@@ -52,13 +54,13 @@ void test(char * input, int answer){
 
 void runtests(){
 	test("{}", 1);
-	test("{{{}}}", 3 );
-	test("{{},{}}", 3 );
-	test("{{{},{},{{}}}}", 6 );
-	test("{<{},{},{{}}>}", 1 );
-	test("{<a>,<a>,<a>,<a>}", 1 );
-	test("{{<a>},{<a>},{<a>},{<a>}}", 5 );
-	test("{{<!>},{<!>},{<!>},{<a>}}", 2 );
+	test("{{{}}}",  6);
+	test("{{},{}}",  5);
+	test("{{{},{},{{}}}}",  16);
+	test("{<a>,<a>,<a>,<a>}",  1);
+	test("{{<!!>},{<!!>},{<!!>},{<!!>}}",  9);
+	test("{{<a!>},{<a!>},{<a!>},{<ab>}}",  3);
+
 	printf("All tests pass\n");
 }
 
