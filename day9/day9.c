@@ -8,9 +8,14 @@ int process(char * input){
 	int nogroups=0;
 	int garbage=0;
 	int score=0;
+	int countgarbage=0;
 	
 	for (char *x=input;*x!=0;x++){
-		if(garbage==1 && *x!='>' && *x!='!') continue;
+		if(garbage==1 && *x!='>' && *x!='!') {
+			countgarbage++;
+			continue;
+		}
+
 		switch(*x){
 		case '!':
 			if(garbage==1){
@@ -39,7 +44,7 @@ int process(char * input){
 		printf("Invalid input\n");
 		exit(0);
 	}
-	return score;
+	return countgarbage;
 
 }
 
@@ -53,13 +58,13 @@ void test(char * input, int answer){
 }
 
 void runtests(){
-	test("{}", 1);
-	test("{{{}}}",  6);
-	test("{{},{}}",  5);
-	test("{{{},{},{{}}}}",  16);
-	test("{<a>,<a>,<a>,<a>}",  1);
-	test("{{<!!>},{<!!>},{<!!>},{<!!>}}",  9);
-	test("{{<a!>},{<a!>},{<a!>},{<ab>}}",  3);
+     test("<>", 0);
+     test("<random characters>", 17 );
+     test("<<<<>", 3 );
+     test("<{!>}>", 2 );
+     test("<!!>", 0 );
+     test("<!!!>>", 0 );
+     test("<{o\"i!a,<{i<a>", 10 );
 
 	printf("All tests pass\n");
 }
