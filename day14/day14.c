@@ -10,6 +10,7 @@ int steps[MAXSTEPS];
 #define LEN 256
 
 
+
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
   (byte & 0x08 ? '#' : '.'), \
@@ -19,6 +20,9 @@ int steps[MAXSTEPS];
 
 int list[LEN];
 int buf[LEN*LEN];
+char map [128][33];
+
+char regions[128][128];
 
 
 void setuplist(){
@@ -136,7 +140,8 @@ void testknot(){
   verify("1,2,4","63960835bcdc130f0b66d7ff4f6a5a8e");
 }
 
-void binprint(char c){
+
+int charval(char c){
   char val=0;
   if(c>='0' && c <='9'){
     val=c-'0';
@@ -145,22 +150,28 @@ void binprint(char c){
     val=c-'a';
     val+=10;
   }
+  return val;
+}
+
+void binprint(char c){
+  int val=charval(c);
   printf(BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(val));
 }
 
 int hexval(char c){
-  char byte =0;
-  if(c>='0' && c <='9'){
-    byte=c-'0';
-  }
-  if (c>='a' && c<='z'){
-    byte=c-'a';
-    byte+=10;
-  }
-  
+  char byte =charval(c);
   int num = (byte & 0x08 ? 1 : 0) +
   (byte & 0x04 ? 1 : 0) +
   (byte & 0x02 ? 1 : 0) +
+    (byte & 0x01 ? 1 : 0) ;
+  return num;
+}
+
+int hexcharnum(char c){
+  char byte =charval(c);
+  int num = (byte & 0x08 ? 1000 : 0) +
+  (byte & 0x04 ? 100 : 0) +
+  (byte & 0x02 ? 10 : 0) +
     (byte & 0x01 ? 1 : 0) ;
   return num;
 }
@@ -177,9 +188,10 @@ int getUsedSquares(char * root){
     printf("Hashing %s ...",input);
     getHash(input,hash);
     printf("%s",hash);
-	   
+    strcpy(map[x],hash);
     char * ptr=hash;
-      while(*ptr!=0){
+    
+    while(*ptr!=0){
       tot+=hexval(*ptr);
       ptr++;
     }
@@ -190,12 +202,46 @@ int getUsedSquares(char * root){
 }
 
 
+int getRegions(){
+  for(int x=0;x<128;x++){
+    char *ptr = map[x];
+    int y=0;
+    while(*ptr!=0){
+      char byte =charval(*ptr);
+      regions[x][y]=byte&0x08 ? 1 : 0;
+      y++;
+      regions[x][y]=byte&0x04 ? 1 : 0;
+      y++;
+      regions[x][y]=byte&0x02 ? 1 : 0;
+      y++;
+      regions[x][y]=byte&0x01 ? 1 : 0;
+      y++;
+      ptr++;
+    }
+  }
+
+  // and print them all
+  for(int x=0;x<128;x++){
+    for(int y=0;y<128;y++){
+      printf("%d",regions[x][y]);
+    }
+    printf("\n");
+  }
+  return -1;
+}
+
+
 
 
 void main(){
   testknot();
   if(getUsedSquares("flqrgnkx")!=8108){
    printf("FAIL\n");
+   exit(1);
+  }
+  if(getRegions("flqrgnkx")!=1242){
+    printf("FAIL - regions");
+    exit(1);
   }
 
   printf("Answer:%d\n",getUsedSquares("nbysizxe"));
