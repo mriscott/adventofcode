@@ -22,11 +22,12 @@ int list[LEN];
 int buf[LEN*LEN];
 char map [128][33];
 
-char regions[128][128];
+int regions[128][128];
 
 
 void setuplist(){
-  for(int x=0;x<LEN;x++){
+  int x;
+  for(x=0;x<LEN;x++){
     list[x]=x;
   }
 }
@@ -34,12 +35,13 @@ void setuplist(){
 void setupsteps(char* input){
   char *ptr=input;
   int x=0;
+  int y=0;
   while(*ptr!=0){
     steps[x]=*ptr;
     ptr++;
     x++;
   }
-  for(int y=0;y<SUFFIXLEN;y++){
+  for(y=0;y<SUFFIXLEN;y++){
     steps[x]=suffix[y];
     x++;
   }
@@ -47,7 +49,8 @@ void setupsteps(char* input){
 }
   
 void printlist(int curpos){
-  for(int x=0;x<LEN;x++){
+  int x;
+  for(x=0;x<LEN;x++){
     printf(" %d",list[x]);
     if(x==curpos) printf("*");
   }
@@ -57,13 +60,14 @@ void printlist(int curpos){
 void reverseslice(int start, int size){
   // store current
   int listpos=start;
-  for(int x=0;x<size;x++){
+  int x;
+  for(x=0;x<size;x++){
     buf[x]=list[listpos];
     listpos++;
     if(listpos==LEN) listpos=0;
   }
   // reverse
-  for(int x=0;x<size;x++){
+  for(x=0;x<size;x++){
     listpos--;
     if(listpos==-1) listpos=LEN-1;
     list[listpos]=buf[x];
@@ -76,7 +80,8 @@ void run( char *hash){
   int curpos=0;
   int skipsize=0;
   // printlist(curpos);
-  for(int ii=0;ii<64;ii++){
+  int ii;
+  for(ii=0;ii<64;ii++){
     //    printf("Round %d\n",ii);
     int step=steps[0];
     int n=0;
@@ -99,10 +104,11 @@ void run( char *hash){
   // now calc values
   
   int val;
-  for(int x=0;x<16;x++){
+  int x,y;
+  for(x=0;x<16;x++){
     val=list[x*16];
     //printf("Val %d:%02x\n",x*16,val);
-    for(int y=1;y<16;y++){
+    for(y=1;y<16;y++){
       val=val^list[x*16+y];
       //printf("Val %d:%02x -> %02x\n",x*16+y,list[x*16+y],val);
     }
@@ -183,7 +189,8 @@ int getUsedSquares(char * root){
   char input[]="flqrgnkx-aaa";
 
   int tot=0;
-  for (int x=0;x<128;x++){
+  int x;
+  for (x=0;x<128;x++){
     sprintf(input,"%s-%d",root,x);
     printf("Hashing %s ...",input);
     getHash(input,hash);
@@ -201,9 +208,43 @@ int getUsedSquares(char * root){
   return tot;
 }
 
+int setValueAndSurroundings(int x, int y, int z){
+  int old = regions[x][y] ;
+  if(old!=1) return;
+  printf("(%d,%d): %d -> %d\n",x,y,old,z);
+  regions[x][y]=z;
+  if(x!=0 && regions[x-1][y]==1) setValueAndSurroundings(x-1,y,z);
+  if(y!=0 && regions[x][y-1]==1) setValueAndSurroundings(x,y-1,z);
+  if(y!=127 && regions[x][y+1]==1) setValueAndSurroundings(x,y+1,z);
+  if(x!=127 && regions[x+1][y]==1) setValueAndSurroundings(x+1,y,z);
+}
+
+// if it finds a value around it, then it sets that value everywhere
+// and returns the value
+// if no value found, return 0
+int getValueFromSurroundings(int x,int y){
+  int val=0; 
+  if(regions[x][y]!=1) {
+    printf("Prog error\n");
+    exit(1);
+  }
+  // find value to copy
+  if(x!=0 && regions[x-1][y]>1) val=regions[x-1][y];
+  else if(y!=0 && regions[x][y-1]>1) val=regions[x][y-1];
+  else if(y!=127 && regions[x][y+1]>1) val=regions[x][y+1];
+  else if(x!=127 && regions[x+1][y]>1) val=regions[x+1][y];
+
+  if(val!=0) {
+    printf("Found val %d adjacent to %d,%d ... setting\n",val,x,y);
+    setValueAndSurroundings(x,y,val);
+  }
+  return val;
+}
+
 
 int getRegions(){
-  for(int x=0;x<128;x++){
+  int x;
+  for(x=0;x<128;x++){
     char *ptr = map[x];
     int y=0;
     while(*ptr!=0){
@@ -220,20 +261,42 @@ int getRegions(){
     }
   }
 
-  // and print them all
-  for(int x=0;x<128;x++){
-    for(int y=0;y<128;y++){
-      printf("%d",regions[x][y]);
+  // and set up regions
+  int y;
+
+  for(x=0;x<128;x++){
+    for(y=0;y<128;y++){
+      printf("%d",(regions[x][y]%10));
     }
     printf("\n");
   }
-  return -1;
+
+  printf("\n");
+  printf("\n");
+  int p=2;
+  for(x=0;x<128;x++){
+    for(y=0;y<128;y++){
+      if(regions[x][y]==1){
+	  printf("Setting new val %d for %d,%d\n",p,x,y);
+	  setValueAndSurroundings(x,y,p);
+	  p++;
+	  
+      }
+    }
+  }
+  for(x=0;x<128;x++){
+    for(y=0;y<128;y++){
+      printf("%d",(regions[x][y] % 10));
+    }
+    printf("\n");
+  }
+  return p-2;
 }
 
 
 
 
-void main(){
+int main(){
   testknot();
   if(getUsedSquares("flqrgnkx")!=8108){
    printf("FAIL\n");
@@ -244,7 +307,8 @@ void main(){
     exit(1);
   }
 
-  printf("Answer:%d\n",getUsedSquares("nbysizxe"));
+  printf("Squares:%d\n",getUsedSquares("nbysizxe"));
+  printf("Regions:%d\n",getRegions("nbysizxe"));
   
-
+  return 0;
 }
