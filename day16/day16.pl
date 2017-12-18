@@ -15,15 +15,9 @@ while (<FILE>){
 
 
 
-foreach(@programs){
-    print;
-}
-print "\n";
-
+for ( $n=0;$n<(1000000000%30);$n++){
 foreach(@dance){
-    print "$_ -> ";
     if(/s(\d+)/){
-	print "spin $1\n";
 	$start=$max-$1;
 	$x=$start;
 	@newprograms=();
@@ -39,14 +33,12 @@ foreach(@dance){
 	@programs=@newprograms;
     }
     if(/x(\d+)\/(\d+)/){
-	print "exchange $1 and $2\n";
 	$a=$programs[$1];
 	$programs[$1]=$programs[$2];
 	$programs[$2]=$a;
 		
     }
     if(/p(\w+)\/(\w+)/){
-	print "partner $1 and $2\n";
 	
 	for($x=0;$x<$max;$x++){
 	    if ($programs[$x] eq $1) {
@@ -58,9 +50,15 @@ foreach(@dance){
 	}
     }
 
-    foreach(@programs){
-	print;
-    }
-    print "\n";
 
 }
+$order="";
+foreach(@programs) {
+    $order="$order$_";
+}
+
+if ($order eq "abcdefghijklmnop"){
+print "$n:$order\n";
+}
+}
+print "$order\n";
