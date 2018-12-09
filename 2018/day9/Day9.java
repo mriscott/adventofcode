@@ -1,7 +1,7 @@
 public class Day9
 {
     int playernum;
-    int marbles;
+    long marbles;
     int turn;
     Player [] players;
     Marble start;
@@ -15,23 +15,23 @@ public class Day9
 	test (21 , 6111, 54718);
 	test (30 , 5807, 37305);
 
-	Day9 me = new Day9(411,71170);
+	Day9 me = new Day9(411,7117000);
 	me.play();
 	System.out.println(me.maxScore());
     }
 
 
-    public static void test(int players, int marbles, int maxscore){
+    public static void test(int players, long marbles, long maxscore){
 	Day9 me = new Day9(players,marbles);
 	me.play();
-	int max=me.maxScore();
+	long max=me.maxScore();
 	if(max!=maxscore) {
 	    throw new RuntimeException("Max score for "+players +" players and "+marbles+" marbles should be "+maxscore+" not "+max);
 	}
 	
     }
     
-    public Day9(int p, int m){
+    public Day9(int p, long m){
 	playernum=p;
 	marbles=m;
 	start=new Marble(0);
@@ -47,8 +47,8 @@ public class Day9
 	turn=0;
     }
 
-    public int maxScore(){
-	int max=0;
+    public long maxScore(){
+	long max=0;
 	for (int x=0;x<playernum;x++){
 	    //System.out.println(players[x]);
 	    if(max<players[x].score) max=players[x].score;
@@ -58,12 +58,12 @@ public class Day9
     
     public void play(){
 	
-	for (int x=1;x<=marbles;x++){
+	for (long x=1;x<=marbles;x++){
 	    Marble newcurrent = new Marble(x);
 	    if (x%23==0){
 		players[turn].addMarble(newcurrent);
 		Marble toRemove=current;
-		for (int i=0;i<7;i++){
+		for (long i=0;i<7;i++){
 		    toRemove=toRemove.anticlockwise;
 		}
 		players[turn].addMarble(toRemove);
@@ -98,9 +98,9 @@ public class Day9
 }
 
 class Player{
-    int score;
-    int number;
-    public Player(int no){
+    long score;
+    long number;
+    public Player(long no){
 	number=no;
 	score=0;
     }
@@ -118,10 +118,10 @@ class Player{
 class Marble{
     Marble clockwise;
     Marble anticlockwise;
-    int number;
+    long number;
     boolean current;
 
-    public Marble(int no){
+    public Marble(long no){
 	number=no;
     }
 
