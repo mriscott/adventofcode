@@ -4,9 +4,21 @@ public class Rack{
     int size=300;
     
     public static void main(String [] args){
-	runTests();
-	Rack me = new Rack(19552);
-	me.printMaxPower();
+	//runTests();
+	Rack me = new Rack(1955);
+	//Rack me = new Rack(42);
+	int max=0;
+	int maxgrid=0;
+	for (int s=1;s<300;s++){
+	    int maxs=me.printMaxPower(s);
+	    if(maxs>max) {
+		max=maxs;
+		maxgrid=s;
+	    }
+	    if(maxs==-999) break;
+	}
+	System.out.println("\n\nMax Power "+max+" with grid of "+maxgrid);
+	me.printMaxPower(maxgrid);
 
     }
     
@@ -15,15 +27,27 @@ public class Rack{
 	test(57,122,79,-5);
 	test(39,217,196,0);
 	test(71,101,153,4);
+	testMaxPower(42,3,30,21,61);
+	testMaxPower(18,3,29,33,45);
     }
 
-    public void printMaxPower(){
+    public static void testMaxPower(int serial, int gridsize, int power, int x, int y){
+	Rack t = new Rack(serial);
+	System.out.println("Checking :"+power+" at "+x+","+y);
+	int p=t.printMaxPower(gridsize);
+	if(p!=power){
+	    throw new RuntimeException("Max power should be "+power+" not "+p);
+	}
+
+    }
+
+    public int printMaxPower(int gridsize){
 	int max=-999;
 	int xx=-999;
 	int yy=-999;
-	for (int y=0;y<(size-3);y++){
-	    for (int x=0;x<(size-3);x++){
-		int gridPower=getGridPower(x,y);
+	for (int y=0;y<(size-gridsize);y++){
+	    for (int x=0;x<(size-gridsize);x++){
+		int gridPower=getGridPower(x,y,gridsize);
 		if(gridPower>max){
 		    max=gridPower;
 		    xx=x;
@@ -31,13 +55,14 @@ public class Rack{
 		}
 	    }
 	}
-	System.out.println("Max Power:"+max+" at "+xx+","+yy);
+	System.out.println("Max Power for "+gridsize+":"+max+" at "+xx+","+yy);
+	return max;
     }
 
-    int getGridPower(int xx, int yy){
+    int getGridPower(int xx, int yy, int gridsize){
 	int pow=0;
-	for (int y=yy;y<yy+3;y++){
-	    for (int x=xx;x<xx+3;x++){
+	for (int y=yy;y<yy+gridsize;y++){
+	    for (int x=xx;x<xx+gridsize;x++){
 		pow+=getPower(x,y);
 	    }
 	}
