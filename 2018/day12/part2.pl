@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 
-use Math::BigInt;
 $initial;
 @state=();
 %rules=();
@@ -12,29 +11,73 @@ foreach (<STDIN>){
     }	
     if (/^([#\.]+) => ([#\.])/){
     	$rules{$1}=$2;
-	print "$1 => $2\n";
+	#print "$1 => $2\n";
     }
 }
-$targetgen=50000000000;
-$target=calc($targetgen);
-print "Calculated val for $targetgen = $target\n";
-exit 0;
-$pad=10000;
+$pad=700;
 for ($x=0;$x<$pad;$x++){
     $initial=".$initial.";
 }
 
 @state=split //,$initial;
 $len=scalar @state;
-#print "Length:$len\n";
+print "Length:$len\n";
 #print "00: @state\n";
-@origstate=@state;
-for($gen=1;$gen<=$pad;$gen++){
-    $repeat=1;
+print "Part 1...\n";
+for($gen=1;$gen<=20;$gen++){
+    #print "0" if ($gen<10);
+    #print "$gen: @state\n";
+    nextgen();
+    $score=countplants();
+    #print "$gen\t$score\n";
+}
+
+print "\n### Part 1 Answer:$score ###\n\n";
+
+print "Skipping forward to find repeating value ....\n";
+$lastscore=$score;
+$stable=0;
+
+for (;$gen<=250;$gen++){
+    nextgen();
+    $score=countplants();
+    $jump=$score-$lastscore;
+    $jumpjump=$jump-$lastjump;
+    $stable++ if ($jumpjump==$lastjumpjump);
+    #print "$gen\t$score\t$jump\t$jumpjump\n";
+    $lastjump=$jump;
+    $lastjumpjump=$jumpjump;
+    $lastscore=$score;
+}
+die "Couldn't find stable state\n" if ($stable<5);
+print "Stable jumpjump:$jumpjump (stable for $stable gens)\n";
+#setting for calc
+$jumpinc=$jumpjump;
+$startjump=$jump;
+$startscore=$score;
+$startgen=$gen-1;
+
+print "\nChecking calculation ....\n";
+for (;$gen<=500;$gen++){
+    nextgen();
+    $score=countplants();
+    $calcscore=calcscore($gen);
+    #print "$gen\t$score\t$calcscore\n";
+    die "Calc failed" if $calcscore!=$score;
+
+}
+$gen--;
+print "Looks good up to $gen\n";
+print "### Part 2: ".calcscore(50000000000)." ###\n";
+
+
+
+
+sub nextgen(){
     @newstate=@state;
     for ($i=0;$i<$len;$i++){
     	if(($i==0 || $i==($len-1)) && $state[$i] eq '#'){
-	    die ("Entry $i is unexpectedly # at gen $gen");
+	    die ("Entry $i is unexpectedly #");
 	}
 	$match="";
 	for ($y=$i-2;$y<($i+3);$y++){
@@ -48,54 +91,29 @@ for($gen=1;$gen<=$pad;$gen++){
 	$newval=$rules{$match};
 	die ("No rule for $match") if (!$newval);
 	$newstate[$i]=$newval;
-	$repeat=0 if($newval ne $origstate[$i]);
     }
     @state=@newstate;
-    #print "0" if ($gen<10);
-    #print "$gen: @state\n";
-   #  print "$gen\n" if $gen%100==0;
-    if ($repeat==1){
-	print "Repeats at $gen";
-	last;
-    }
-    if ($gen%100==0){
-	#$increment=($gen-200)*34+6811;
-	#$calc=$lastscore+$increment;
-	for ($i=0;$i<$len;$i++){
-		if ($state[$i] eq '#'){
-			$plant=$i-$pad;
-			#print "Plant $plant\n";
-			$score+=$plant;
-		}
-	}
-	print "$gen\t$score\n";
-	$calc=calc($gen);
-	print "Calc\t$calc\n";
-	die "mismatch" if $calc!=$score;
-        if($gen>101) {
-	    die "$score!=$calc" if $score!=$calc;
-	}
-	#print "Jump:".($score-$lastscore)."\n";
-	$lastscore=$score;
-    }
-    if ($gen==$targetgen){
-	die "Generated target score wrong" if $target!=$score;
-	print "Success\n";
-	last;
-    }
-
 }
 
-sub calc($){
-    ($x)=@_;
-    $x/=100;
-    $score=Math::BigInt->new("3489");
-    for ($n=1;$n<$x;$n++){
-	$jump=6811;
-	$jump+=(3400*($n-1));
-	#print "Jump:$jump\n";
-	$score->badd($jump);
-	print "$n/$x\r" if $n%100==0
+sub countplants(){
+    $score=0;
+    for ($i=0;$i<$len;$i++){
+	if ($state[$i] eq '#'){
+		$plant=$i-$pad;
+		#print "Plant $plant\n";
+		$score+=$plant;
+	}
     }
     return $score;
+}
+
+sub calcscore($){
+    ($thisgen)=@_;
+    $over=$thisgen-$startgen;
+    #print "Over:$over Startjump:$startjump\n";
+    $newscore=$startscore;
+    $newscore+=($over*$startjump);
+    $extrajump=$over*($over-1)*$jumpinc/2;
+    $newscore+=$extrajump;
+    return $newscore;
 }
