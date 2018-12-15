@@ -21,15 +21,16 @@ public class Track{
 	    //System.out.println(me);
 	    boolean crash=false;
 	    int time=0;
-	    while (!crash){
-		//System.out.println("Tick:"+time);
+	    while (me.carts.size()>1){
+		System.out.println("Tick:"+time);
 		crash=!me.move();
 		time++;
 		//System.out.println(me);
 
 	    }
+	    Cart cart=(Cart)me.carts.get(0);
+	    System.out.println("Final cart:"+cart.cartno+" at "+cart.getX()+","+cart.getY());
 	    
-	    System.out.println("Time of crash:"+time);
 	    //System.out.println(me);
 
 	}catch (Exception e){
@@ -106,16 +107,18 @@ public class Track{
 		    //System.out.println(this);
 		    if(!crash) {
 			System.out.println("Crash "+cart.cartno+" at "+cart.getX()+","+cart.getY());
-			return false;
+			// remove both carts
+			carts.remove(cart);
+			Entry entry=get(cart.getX(),cart.getY());
+			carts.remove(entry.getCart());
+			entry.cart=null;
+			//return false;
 		    }
-		    cart.setMoved(true);
+		    else cart.setMoved(true);
 		    moves++;
 		}
 
 	    }	    
-	}
-	if (moves != carts.size()){
-	    throw new RuntimeException("Not all carts moved");
 	}
 	return crash;
     }
@@ -166,7 +169,7 @@ class Entry{
 	return ""+getChar();
     }
     public char getChar(){
-	if (crash) return 'X';
+	//if (crash) return 'X';
 	if(cart!=null){
 	    return cart.getChar();
 	}
