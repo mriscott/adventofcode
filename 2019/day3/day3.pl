@@ -14,7 +14,10 @@ $two='L1003,U603,L675,U828,R671,U925,R466,D707,L39,U1,R686,U946,L438,U626,R714,D
 $x=0;
 $y=0;
 %area=();
+%steps=();
 $mindist=99999;
+$minsteps=99999;
+$step;
 
 sub domove($$){
 	($id,$str)=@_;
@@ -40,10 +43,15 @@ sub domove($$){
 		$x+=$xx;
 		$y+=$yy;
 		$point="$x:$y";
+		$step++;
+		$steps{$point}=$step if !($steps{$point});
 		if ($area{$point} && $area{$point} ne $id){
 			$dist=abs($x)+abs($y);
 			$mindist=$dist if $mindist>$dist;
 			print "Cross at $point : $dist\n";
+			$totsteps=$step+$steps{$point};
+			$minsteps=$totsteps if $minsteps>$totsteps;
+			print "Total Steps: $step+$steps{$point}=$totsteps\n";
 		}
 		$area{$point}=$id;
 	}
@@ -55,12 +63,14 @@ foreach(@onemoves){
 }
 $x=0;
 $y=0;
+$step=0;
 foreach(@twomoves){
 	domove("2",$_);
 }
 
 
-print "Min dist:$mindist\n";
+print "Min dist: $mindist\n";
+print "Min steps $minsteps\n";
 
 #for ($y=-10;$y<10;$y++){
 #	for ($x=-10;$x<10;$x++){
