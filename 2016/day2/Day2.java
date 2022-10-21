@@ -1,13 +1,21 @@
+import java.io.*;
+
 public class Day2{
 	int [][] arr={{1,2,3},{4,5,6},{7,8,9}};
 	int x=1;
 	int y=1;
 
 	public static void main(String [] args){
-		Day2 test=new Day2();
-		System.out.println("Test:"+test.test());
-		Day2 real=new Day2();
-		System.out.println("Answer:"+real.read("input"));
+		try{
+			Day2 test=new Day2();
+			System.out.println("Test:"+test.test());
+			Day2 test2=new Day2();
+			System.out.println("Test2:"+test.testRead());
+			Day2 real=new Day2();
+			System.out.println("Answer:"+real.read(args.length>0?args[0]:"input"));
+		}catch(IOException e){
+			e.printStackTrace();
+		}
 	
 
 	}
@@ -27,8 +35,23 @@ public class Day2{
 		
 	}
 
-	public String read(String filename){
-		return "TBC";
+	public boolean testRead() throws IOException{
+		String answer=read("test");
+		return(answer.equals("1985"));
+	}
+
+	public String read(String filename) throws IOException {
+		System.out.println("Reading "+filename);
+		LineNumberReader fr=new LineNumberReader(new FileReader(new File(filename)));
+		String line=fr.readLine();
+		String output="";
+		while(line!=null){
+			processLine(line);
+			output+=getNum();
+			line=fr.readLine();
+		}
+		fr.close();
+		return output;
 	}
 
 	
