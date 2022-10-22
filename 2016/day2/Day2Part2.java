@@ -10,7 +10,7 @@ public class Day2Part2{
 			Day2Part2 test=new Day2Part2();
 			System.out.println("Test:"+test.test());
 			Day2Part2 test2=new Day2Part2();
-			System.out.println("Test2:"+test.testRead());
+			System.out.println("Test2:"+test2.testRead());
 			Day2Part2 real=new Day2Part2();
 			System.out.println("Answer:"+real.read(args.length>0?args[0]:"input"));
 		}catch(IOException e){
