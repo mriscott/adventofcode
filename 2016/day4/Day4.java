@@ -9,6 +9,7 @@ public class Day4{
 			System.out.println("Test:"+test.test());
 			Day4 test2=new Day4();
 			System.out.println("Test2:"+test.testRead());
+			
 			//Day2 real=new Day2();
 			//System.out.println("Answer:"+real.read(args.length>0?args[0]:"input"));
 		}catch(IOException e){
@@ -58,6 +59,7 @@ public class Day4{
 		boolean data=true;
 		boolean cksum=false;
 		String checksum="";
+		int max=0;
 		String roomno="";
 		Hashtable counts=new Hashtable();
 		for(int i=0;i<line.length();i++){
@@ -70,6 +72,7 @@ public class Day4{
 
 				count++;
 				counts.put(c,""+count);
+				if(count>max) max=count;
 			}
 			if(c>='0' && c<='9'){
 				// room number
@@ -86,6 +89,27 @@ public class Day4{
 
 		}
 		System.out.println("Room : "+roomno+" Checksum:"+checksum);
+		// key on count
+		String [] keymap=new String[max+1];
+		for(char c='a';c<='z';c++){
+			Object o=counts.get(c);
+			if(o!=null){
+				int cnt=Integer.parseInt(o.toString());
+				if(keymap[cnt]==null){
+					keymap[cnt]="";
+				}
+				keymap[cnt]+=c;
+			}
+			
+		}
+		int x=max;
+		String ret="";
+		while(ret.length()<5 && max>=0){
+			if(keymap[x]!=null) ret+=keymap[x];
+			x--;
+		}
+		System.out.println(ret);
+		if(ret.substring(0,5).equals(checksum)) return 1;
 		return 0;
 	}
 
