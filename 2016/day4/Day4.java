@@ -9,30 +9,59 @@ public class Day4{
 			System.out.println("Test:"+test.test());
 			Day4 test2=new Day4();
 			System.out.println("Test2:"+test.testRead());
+			System.out.println("test3:"+test.testDecrypt());
 			
-			//Day2 real=new Day2();
-			//System.out.println("Answer:"+real.read(args.length>0?args[0]:"input"));
+			Day4 real=new Day4();
+			System.out.println("Answer:"+real.read(args.length>0?args[0]:"input"));
+
+
 		}catch(IOException e){
 			e.printStackTrace();
 		}
 	
 
 	}
+
+	String decrypt(String room, int sector){
+		// first chop off sector
+		int l=room.lastIndexOf('-');
+		room=room.substring(0,l);
+		String str="";
+		for (int x=0;x<room.length();x++){
+			char c=room.charAt(x);
+			if(c=='-') {
+				c=' ';
+			}else{
+				c-=97;
+				c+=sector;
+				c=(char)(c%26);
+				c+=97;
+			}
+			str+=c;
+
+		}
+		System.out.println(str+" "+sector);
+		return str;
+	}
+
+	public boolean testDecrypt(){
+		return(decrypt("qzmt-zixmtkozy-ivhz-343",343).equals("very encrypted name"));
+	}
 	
 	public boolean test()
 	{
 		boolean success=true;
-		if (processLine("aaaaa-bbb-z-y-x-123[abxyz]")!=1) success=false;
-		if(processLine("a-b-c-d-e-f-g-h-987[abcde]")!=1) success=false;
-		if(processLine("not-a-real-room-404[oarel]")!=1) success=false;
+		if (processLine("aaaaa-bbb-z-y-x-123[abxyz]")!=123) success=false;
+		if(processLine("a-b-c-d-e-f-g-h-987[abcde]")!=987) success=false;
+		if(processLine("not-a-real-room-404[oarel]")!=404) success=false;
 		if(processLine("totally-real-room-200[decoy]")!=0) success=false;;
 		return(success); 
 		
 	}
 
 	public boolean testRead() throws IOException{
-		int count=read("test");
-		return(count==3);
+		int total=read("test");
+		return(total==1514);
 	}
 
 	public int read(String filename) throws IOException {
@@ -88,7 +117,6 @@ public class Day4{
 			}
 
 		}
-		System.out.println("Room : "+roomno+" Checksum:"+checksum);
 		// key on count
 		String [] keymap=new String[max+1];
 		for(char c='a';c<='z';c++){
@@ -108,8 +136,9 @@ public class Day4{
 			if(keymap[x]!=null) ret+=keymap[x];
 			x--;
 		}
-		System.out.println(ret);
-		if(ret.substring(0,5).equals(checksum)) return 1;
+		int r=Integer.parseInt(roomno);
+		decrypt(line,r);
+		if(ret.substring(0,5).equals(checksum)) return r;
 		return 0;
 	}
 
