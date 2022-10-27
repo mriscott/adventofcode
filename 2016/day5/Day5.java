@@ -1,19 +1,39 @@
 import java.security.*;
 
 public class Day5{
+
+	public static boolean PART1=false;
+	public static boolean PART2=true;
+	public static boolean SKIPTEST=true;
+
 	MessageDigest md;
 	String doorid;
 	public static void main(String [] args){
 		try{
-			Day5 test=new Day5("abc");
-			if("18f47a30".equals(test.getPassword())){
-				System.out.println("Test passed");
-			}else{
-				System.out.println("TEST FAILED");
-				System.exit(1);
+			if (!SKIPTEST){
+				Day5 test=new Day5("abc");
+				if (PART1){
+					if("18f47a30".equals(test.getPassword())){
+						System.out.println("Test passed");
+					}else{
+						System.out.println("TEST FAILED");
+						System.exit(1);
+					}
+				}
+				if (PART2){
+
+					if("05ace8e3".equals(test.getPassword2())){
+						System.out.println("Test passed");
+					}else{
+						System.out.println("TEST FAILED");
+						System.exit(1);
+					}
+				}
+				
 			}
 			Day5 real=new Day5("cxdnnyjw");
-			System.out.println("Answer:"+real.getPassword());
+			if (PART1) System.out.println("Answer:"+real.getPassword());
+			if (PART2) System.out.println("Answer:"+real.getPassword2());
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -33,6 +53,30 @@ public class Day5{
 			if(digest.startsWith("00000")){
 				System.out.println(doorid+i+" => "+digest);
 				password+=digest.charAt(5);
+				System.out.println(password);
+			}
+			i++;
+		}
+		return password;
+	}
+
+	public String getPassword2() throws Exception{
+		String password="--------";
+		char [] cpassword=password.toCharArray();
+		long i=0;
+		while(password.indexOf("-")!=-1){
+		//	if (i%1000000==0) System.out.println(" ... "+i+" ...");
+			String digest=getDigest(doorid+i);
+
+			if(digest.startsWith("00000")){
+				System.out.println(doorid+i+" => "+digest);
+				char index=digest.charAt(5);
+				char ch=digest.charAt(6);
+				if (index>='0' && index <'8'){
+					int in=index-'0';
+					if (cpassword[in]=='-') cpassword[in]=ch;
+					password=new String(cpassword);
+				}
 				System.out.println(password);
 			}
 			i++;
