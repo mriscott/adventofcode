@@ -12,7 +12,8 @@ public class Day6{
 			System.out.println("Test:"+test.testRead());
 			
 			Day6 real=new Day6(8);
-			System.out.println("Answer:"+real.read(args.length>0?args[0]:"input"));
+			System.out.println("Part1: "+real.read(args.length>0?args[0]:"input"));
+			System.out.println("Part2: "+real.getMessage(false));
 
 
 		}catch(IOException e){
@@ -27,7 +28,7 @@ public class Day6{
 
 	public boolean testRead() throws IOException{
 		String message=read("test");
-		return(message.equals("easter"));
+		return(message.equals("easter") && getMessage(false).equals("advent"));
 	}
 
 	public String read(String filename) throws IOException {
@@ -39,7 +40,7 @@ public class Day6{
 			line=fr.readLine();
 		}
 		fr.close();
-		return getMessage();
+		return getMessage(true);
 	}
 
 	
@@ -65,25 +66,32 @@ public class Day6{
 		}
 	}
 
-	String getMessage(){
+	String getMessage(boolean ismax){
 		String msg="";
 		for(int x=0;x<maxchars;x++){
 			char maxc='?';
 			int max=0;
+			int min=99;
+			char minc='?';
 			for(char c='a';c<='z';c++){
 				Object o=counts[x].get(c);
-				System.out.println(c+" - "+o);
 				if(o!=null){
 					int cnt=((Integer)o).intValue();
 					if (cnt>max){
 						max=cnt;
 						maxc=c;
 					}
+					if (cnt<min){
+						min=cnt;
+						minc=c;
+					}
 				}
 				
 			}
-			msg+=maxc;
+			if (ismax) msg+=maxc;
+			else msg+=minc;
 		}
+		System.out.println(msg);
 		return msg;
 	}
 
