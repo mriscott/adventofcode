@@ -36,7 +36,6 @@ int isSsl(char * str){
   int isok=0;
   char  abac[100];
   char babc[100];
-  printf("%s\n",str);
   for(i=0;str[i]!=0;i++,s++){
     if(str[i]=='['){
       sq=1;
@@ -54,21 +53,19 @@ int isSsl(char * str){
 	babc[bab*2]=str[i];
 	babc[bab*2+1]=str[i-1];
 	bab++;
-	printf("BAB:%c%c%c\n",str[i-2],str[i-1],str[i]);
       }
       else {
 	abac[aba*2]=str[i];
 	abac[aba*2+1]=str[i-1];
 	aba++;
-	printf("ABA:%c%c%c\n",str[i-2],str[i-1],str[i]);
       }
     }
     
   }
-  for(int abai=0;abai<=aba;abai+=2){
-    for(int babi=0;babi<=bab;babi+=2){
-      if(abac[abai]==babc[babi+1] &&
-	 abac[abai+1]==babc[babi]){
+  for(int abai=0;abai<aba;abai++){
+    for(int babi=0;babi<bab;babi++){
+      if(abac[abai*2]==babc[babi*2+1] &&
+	 abac[abai*2+1]==babc[babi*2]){
 	isok=1;
       }
     }
@@ -143,7 +140,7 @@ int test(){
 
 
 int main (int argc, char * argv[]){
-  test();
+  if (test()==0)  return 1;
   printf("IPs with TLS: %d\n",countTls("input.txt"));
   printf("IPs with SSL: %d\n",countSsl("input.txt"));
   return 0;
