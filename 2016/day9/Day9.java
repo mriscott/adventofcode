@@ -30,7 +30,7 @@ public class Day9
 			for(int x=0;x<rep.length();x++){
 				if(recurse && rep.charAt(x)=='('){
 					Chunk sub=new Chunk(x,rep);
-					x=movePastChunk(x);
+					x=sub.movePastChunk(x);
 					sub.expand(true);
 					expandedrep.append(sub.rep);
 				}
@@ -135,7 +135,6 @@ public class Day9
 		test2.testDecompress2Len("(27x12)(20x12)(13x14)(7x10)(1x12)A",241920);
 		test2.testDecompress2Len("(25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN",445);
 		System.out.println("Part 2 tests passed");
-		/*
 		try{
 			Day9 part2=new Day9(2);
 			part2.read("input.txt");
@@ -144,7 +143,6 @@ public class Day9
 			e.printStackTrace();
 			return;
 		}
-		*/
 	}
 
 	public void testDecompress2Len(String input,int len){
