@@ -3,6 +3,7 @@ public class Day9
 {
 	int len=0;
 	int part;
+	boolean calcrep=true;
 	public Day9(int p){
 		part=p;
 	}
@@ -42,10 +43,12 @@ public class Day9
 			}
 			mylen=expandedrep.length()*count;
 			StringBuffer exp=new StringBuffer();
-			for(int i=0;i<count;i++) {
-				exp.append(expandedrep);
+			if (calcrep){
+				for(int i=0;i<count;i++) {
+					exp.append(expandedrep);
+				}
+				rep=exp.toString();
 			}
-			rep=exp.toString();
 			return mylen;
 
 		}
@@ -136,16 +139,21 @@ public class Day9
 			return;
 		}
 		Day9 test2= new Day9(2);
+		test2.calcrep=false;
 		test2.testDecompress2Len("(3x3)XYZ",9);
+		test2.calcrep=true;
 		test2.testDecompress("(3x3)XYZ","XYZXYZXYZ",2);
 		test2.testDecompress("X(8x2)(3x3)ABCY","XABCABCABCABCABCABCY",2);
 		test2=new Day9(2);
+		test2.calcrep=false;// TODO - should work without evaluating the string
 		test2.testDecompress2Len("(27x12)(20x12)(13x14)(7x10)(1x12)A",241920);
 		test2=new Day9(2);
+		test2.calcrep=false;
 		test2.testDecompress2Len("(25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN",445);
 		System.out.println("Part 2 tests passed");
 		try{
 			Day9 part2=new Day9(2);
+			part2.calcrep=false;
 			part2.read("input.txt");
 			System.out.println("Decompressed length : "+part2.getDecompressedLength());
 		}catch(IOException e){
