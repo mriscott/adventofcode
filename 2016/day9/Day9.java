@@ -12,6 +12,7 @@ public class Day9
 		String rep;
 		int count;
 		int range;
+		int explen=0;
 
 		Chunk(int x, String input){
 			int sep=input.indexOf("x",x);
@@ -25,7 +26,8 @@ public class Day9
 			return "Chunk:"+chunk+" ["+range+","+count+"]";
 		}
 
-		void expand(boolean recurse){
+		int expand(boolean recurse){
+			int mylen=0;
 			StringBuffer expandedrep=new StringBuffer();
 			for(int x=0;x<rep.length();x++){
 				if(recurse && rep.charAt(x)=='('){
@@ -38,11 +40,13 @@ public class Day9
 					expandedrep.append(rep.charAt(x));
 				}
 			}
+			mylen=expandedrep.length()*count;
 			StringBuffer exp=new StringBuffer();
 			for(int i=0;i<count;i++) {
 				exp.append(expandedrep);
 			}
 			rep=exp.toString();
+			return mylen;
 
 		}
 
@@ -58,9 +62,10 @@ public class Day9
 	int decompressChunk(int x,String input,StringBuffer output){
 		Chunk chunk=new Chunk(x,input);
 		x=chunk.movePastChunk(x);	
-		chunk.expand(part==2);
+		int len2=chunk.expand(part==2);
 		output.append(chunk.rep);
-		len+=chunk.count*chunk.range;
+		if(part==1) len+=chunk.count*chunk.range;
+		else len+=len2;
 		return x;
 	}
 
@@ -82,7 +87,9 @@ public class Day9
 	}
 
 	public int decompress2Len(String input){
-		return calcLen(decompress(input));
+		decompress(input);
+		//return calcLen(decompress(input));
+		return len;
 	}
 
 	int calcLen(String input){
@@ -132,7 +139,9 @@ public class Day9
 		test2.testDecompress2Len("(3x3)XYZ",9);
 		test2.testDecompress("(3x3)XYZ","XYZXYZXYZ",2);
 		test2.testDecompress("X(8x2)(3x3)ABCY","XABCABCABCABCABCABCY",2);
+		test2=new Day9(2);
 		test2.testDecompress2Len("(27x12)(20x12)(13x14)(7x10)(1x12)A",241920);
+		test2=new Day9(2);
 		test2.testDecompress2Len("(25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN",445);
 		System.out.println("Part 2 tests passed");
 		try{
@@ -167,7 +176,6 @@ public class Day9
 		real=decompress(input);
 		if(real.equals(output)){
 			System.out.println("Test: "+input+" -> "+output+" :PASS");
-			System.out.println("len:"+len);
 		}
 		else{
 
