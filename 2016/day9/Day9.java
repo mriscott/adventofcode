@@ -1,7 +1,7 @@
 import java.io.*;
 public class Day9
 {
-	int len=0;
+	long len=0;
 	int part;
 	boolean calcrep=true;
 	public Day9(int p){
@@ -13,7 +13,7 @@ public class Day9
 		String rep;
 		int count;
 		int range;
-		int explen=0;
+		long explen=0;
 
 		Chunk(int x, String input){
 			int sep=input.indexOf("x",x);
@@ -27,8 +27,7 @@ public class Day9
 			return "Chunk:"+chunk+" ["+range+","+count+"]";
 		}
 
-		int expand(boolean recurse){
-			int mylen=0;
+		long expand(boolean recurse){
 			StringBuffer expandedrep=new StringBuffer();
 			for(int x=0;x<rep.length();x++){
 				if(recurse && rep.charAt(x)=='('){
@@ -36,12 +35,14 @@ public class Day9
 					x=sub.movePastChunk(x);
 					sub.expand(true);
 					expandedrep.append(sub.rep);
+					explen+=sub.explen;
 				}
 				else{
 					expandedrep.append(rep.charAt(x));
+					explen++;
 				}
 			}
-			mylen=expandedrep.length()*count;
+			explen=explen*count;
 			StringBuffer exp=new StringBuffer();
 			if (calcrep){
 				for(int i=0;i<count;i++) {
@@ -49,7 +50,7 @@ public class Day9
 				}
 				rep=exp.toString();
 			}
-			return mylen;
+			return explen;
 
 		}
 
@@ -65,7 +66,7 @@ public class Day9
 	int decompressChunk(int x,String input,StringBuffer output){
 		Chunk chunk=new Chunk(x,input);
 		x=chunk.movePastChunk(x);	
-		int len2=chunk.expand(part==2);
+		long len2=chunk.expand(part==2);
 		output.append(chunk.rep);
 		if(part==1) len+=chunk.count*chunk.range;
 		else len+=len2;
@@ -89,14 +90,14 @@ public class Day9
 		return output.toString();
 	}
 
-	public int decompress2Len(String input){
+	public long decompress2Len(String input){
 		decompress(input);
 		//return calcLen(decompress(input));
 		return len;
 	}
 
-	int calcLen(String input){
-		int l=0;
+	long calcLen(String input){
+		long l=0;
 		for(int x=0;x<input.length();x++){
 			if(!Character.isWhitespace(input.charAt(x))) l++;
 		}
@@ -116,7 +117,7 @@ public class Day9
 		fr.close();
 	}
 
-	public int getDecompressedLength(){
+	public long getDecompressedLength(){
 		return len;
 	}
 
@@ -162,8 +163,8 @@ public class Day9
 		}
 	}
 
-	public void testDecompress2Len(String input,int len){
-		int real=decompress2Len(input);
+	public void testDecompress2Len(String input,long len){
+		long real=decompress2Len(input);
 		if(real==len){
 			System.out.println("Test: "+input+" -> "+len+" :PASS");
 		}
@@ -193,7 +194,7 @@ public class Day9
 
 	}
 
-	public void testDecompressedLength(int expected){
+	public void testDecompressedLength(long expected){
 		if(expected==getDecompressedLength()){
 			System.out.println("Length test passed");
 		}
