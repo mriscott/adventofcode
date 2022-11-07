@@ -116,7 +116,11 @@ public class Day10 extends ReadFile{
 			testread.testread();
 			Day10 part1=new Day10();
 			part1.readFile("input.txt");
-			System.out.println(part1.getBot(17,61));
+			System.out.println("Part1: "+part1.getBot(17,61));
+			System.out.println("Part2: "+part1.outputs[0]*part1.outputs[1]*part1.outputs[2]);
+			
+			
+
 
 			
 		}catch(IOException e){
