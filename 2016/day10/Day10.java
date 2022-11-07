@@ -8,13 +8,34 @@ public class Day10 extends ReadFile{
 		int high=-1;
 		int botno;
 		boolean inuse;
+		Target lowTarget;
+		Target highTarget;
 
 		Bot(int no){
 			botno=no;
 			inuse=false;
 		}
 
+		class Target{
+			boolean isOutput;
+			int num;
+			public Target(boolean o, int n){
+				num=n;
+				isOutput=o;
+			}
+		}
 
+		void setLowTarget(boolean o, int n){
+			lowTarget=new Target(o,n);
+		}
+
+		void setHighTarget(boolean o, int n){
+			highTarget=new Target(o,n);
+		}
+
+		boolean isFull(){
+			return chip1!=null && chip2!=null;
+		}
 		
 		
 		void addChip(int chip){
@@ -84,9 +105,8 @@ public class Day10 extends ReadFile{
 	Bot[] bots;
 	Integer[] outputs;
 	int MAXBOT=210;
-	int MAXOUTPUT=20;
+	int MAXOUTPUT=30;
 	boolean values;
-	boolean repeatread;
 
 	public static void main(String []args){
 		Day10 me = new Day10();
@@ -124,27 +144,37 @@ public class Day10 extends ReadFile{
 				throw new IllegalArgumentException("Invalid line:"+line);
 			}
 			int dest=Integer.parseInt(words[6]);
-			if(words[5].equals("bot")){
-				bots[dest].addChip(bots[bot].poplow());
-			}
-
-			if(words[5].equals("output")){
-				outputs[dest]=bots[bot].poplow();
-			}
+			bots[bot].setLowTarget(words[5].equals("output"),dest);
 			if(!words[7].equals("and") || !words[8].equals("high")||!words[9].equals("to")){
 				throw new IllegalArgumentException("Invalid line:"+line);
 			}
 			dest=Integer.parseInt(words[11]);
-			if(words[10].equals("bot")){
-				bots[dest].addChip(bots[bot].pophigh());
-			}
-
-			if(words[10].equals("output")){
-				outputs[dest]=bots[bot].pophigh();
-			}
+			bots[bot].setHighTarget(words[10].equals("output"),dest);
+			deliverChips(bot);
 		}
 
 
+	}
+
+	void deliverChips(int bot){
+		Bot srcBot=bots[bot];
+		if (srcBot.isFull()==false) return;
+		if(srcBot.lowTarget==null || srcBot.highTarget==null) return;
+		if(srcBot.lowTarget.isOutput){
+			outputs[srcBot.lowTarget.num]=srcBot.poplow();
+		}else{
+			bots[srcBot.lowTarget.num].addChip(srcBot.poplow());
+			deliverChips(srcBot.lowTarget.num);
+		}
+		srcBot.lowTarget=null;
+		
+		if(srcBot.highTarget.isOutput){
+			outputs[srcBot.highTarget.num]=srcBot.pophigh();
+		}else{
+			bots[srcBot.highTarget.num].addChip(srcBot.pophigh());
+			deliverChips(srcBot.highTarget.num);
+		}
+		srcBot.highTarget=null;
 	}
 
 		int getBot(int low,int high){
@@ -198,10 +228,7 @@ public class Day10 extends ReadFile{
 		read(filename);
 		// then for output
 		values=false;
-		do{
-			repeatread=false;
-			read(filename);
-		}while(repeatread);
+		read(filename);
 	}
 	void printAllBots(){
 		for(int x=0;x<MAXBOT;x++){
@@ -213,13 +240,8 @@ public class Day10 extends ReadFile{
 	}
 
 	void process(String line){
-		try{
-			if(values && line.startsWith("value") || !values && line.startsWith("bot"))
-				parseLine(line);
-		}catch(NullPointerException e){
-			System.out.println("stopped at line:"+line+" - repeating");
-			repeatread=true;
-		}
+		if(values && line.startsWith("value") || !values && line.startsWith("bot"))
+			parseLine(line);
 	}
 
 	
