@@ -2,7 +2,7 @@ import java.util.*;
 
 public class Solution extends ReadFile{
 
-	Hashtable reg;
+	Hashtable regi;
 	List instructions;
 
 	
@@ -13,6 +13,12 @@ public class Solution extends ReadFile{
 		part1.safeRead("input.txt");
 		part1.run();
 		System.out.println("Part1:"+part1.getReg("a"));
+		
+		Solution part2=new Solution();
+		part2.safeRead("input.txt");
+		part2.setReg("c",1);
+		part2.run();
+		System.out.println("Part2:"+part2.getReg("a"));
 	}
 
 	public void runTest(){
@@ -23,7 +29,7 @@ public class Solution extends ReadFile{
 		process("jnz a 2");
 		process("dec a");
 		run();
-		int a=getReg("a");
+		long a=getReg("a");
 		if(a!=42){
 			throw new IllegalArgumentException("Reg a ("+a+") should be 42");
 		}
@@ -34,13 +40,18 @@ public class Solution extends ReadFile{
 	}
 
 	public Solution(){
-		reg=new Hashtable(4);
-		reg.put("a",0);
-		reg.put("b",0);
-		reg.put("c",0);
-		reg.put("d",0);
+		regi=new Hashtable(4);
+		setReg("a",0);
+		setReg("b",0);
+		setReg("c",0);
+		setReg("d",0);
 		instructions=new ArrayList();
 	}
+
+	void setReg(String r,long x){
+		regi.put(r,""+x);
+	}
+
 
 
 	void run(){
@@ -48,38 +59,48 @@ public class Solution extends ReadFile{
 		while(idx<instructions.size()){
 			String instruction=(String)instructions.get(idx);
 			String [] splt=instruction.split(" ");
-			int x=getReg(splt[1]);
+			long x=getReg(splt[1]);
 
 			if(splt[0].equals("cpy")){
-				reg.put(splt[2],x);
+				setReg(splt[2],x);
 			}
 			if (splt[0].equals("inc")){
 				x++;
-				reg.put(splt[1],x);
+				setReg(splt[1],x);
 			}
 			if (splt[0].equals("dec")){
 				x--;
-				reg.put(splt[1],x);
+				setReg(splt[1],x);
 			}
 			if (splt[0].equals("jnz")){
 				if(x!=0){
-					int jmp=getReg(splt[2]);
+					long jmp=getReg(splt[2]);
+									
 					idx--;
 					idx+=jmp;
 				}
 			}
 			idx++;
+			//printStatus(idx);
 		}
 
 	}
 
-	int getReg(String r){
-		int x;
+	void printStatus(int idx){
+		System.out.print(" a:"+getReg("a"));
+		System.out.print(".b:"+getReg("b"));
+		System.out.print(" c:"+getReg("c"));
+		System.out.print(" d:"+getReg("d"));
+		System.out.println(" ["+idx+"]");
+	}
+
+	long getReg(String r){
+		long x;
 		try{
-			x=Integer.parseInt(r);
+			x=Long.parseLong(r);
 		}catch (NumberFormatException e){
 			// must be a register
-			x=(Integer)reg.get(r);
+			x=Long.parseLong(regi.get(r).toString());
 		}
 		return x;
 	}
