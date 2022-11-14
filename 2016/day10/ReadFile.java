@@ -12,6 +12,15 @@ public abstract class ReadFile
 		fr.close();
 	}
 
+	public void safeRead(String filename){
+		try{
+			read(filename);
+		}catch(IOException e){
+			e.printStackTrace();
+			throw new IllegalArgumentException("Problem reading "+filename);
+		}
+	}
+
 	abstract void process(String line);
 
 
