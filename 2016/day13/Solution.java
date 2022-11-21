@@ -10,10 +10,21 @@ public class Solution{
 	public static void main(String [] args){
 		Solution test=new Solution(10);
 		test.runTests();
-	
+
+		int max=50;
 		Solution part1=new Solution(1362);
-		part1.setTarget(31,39,200);
+		part1.setTarget(31,39,max);
 		System.out.println("Part1: "+part1.dist);
+
+		int tot=0;
+		for(int x=0;x<max;x++){
+			for(int y=0;y<max;y++){
+				part1.setTarget(x,y,max);
+				if (part1.dist<=50) tot++;
+				System.out.println("("+x+","+y+") =>"+part1.dist);
+			}
+		}
+		System.out.println("Part2: "+tot);
 	}
 
 	void runTests(){
@@ -41,7 +52,7 @@ public class Solution{
 		ty=y;
 		max=m;
 		dist=99999;
-		findRoute();
+		if(!isWall(x,y))		findRoute();
 	}
 
 	boolean isWall(int x, int y){
