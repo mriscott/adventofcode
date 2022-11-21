@@ -6,18 +6,34 @@ public class Solution{
 	int ty;
 	int dist;
 	int max;
-	Set visited;
 
 	public static void main(String [] args){
 		Solution test=new Solution(10);
-		test.setTarget(7,4,10);
-		test.findRoute(-1,1,1);
-		System.out.println("Test dist:"+test.dist);
-
+		test.runTests();
+	
 		Solution part1=new Solution(1362);
 		part1.setTarget(31,39,200);
-		part1.findRoute(-1,1,1);
 		System.out.println("Part1: "+part1.dist);
+	}
+
+	void runTests(){
+		printGrid();
+		int max=10;
+		assertDist(1,1,max,0);
+		assertDist(0,1,max,1);
+		assertDist(0,0,max,2);
+		assertDist(2,2,max,2);
+		assertDist(3,1,max,4);
+		assertDist(7,4,max,11);
+	}
+
+	void assertDist(int x,int y,int m, int e){
+		setTarget(x,y,m);
+		if(dist!=e){
+			throw new IllegalArgumentException("Expected "+e+" to ("+x+","+y+") but got "+dist);
+		}
+		System.out.println("OK : (1,1) -> ("+x+","+y+") = "+e);
+			
 	}
 
 	void setTarget(int x, int y,int m){
@@ -25,7 +41,7 @@ public class Solution{
 		ty=y;
 		max=m;
 		dist=99999;
-		visited=new HashSet();
+		findRoute();
 	}
 
 	boolean isWall(int x, int y){
@@ -50,39 +66,48 @@ public class Solution{
 		for(int y=0;y<10;y++){
 			System.out.print(""+y+" ");
 			for(int x=0;x<10;x++){
-				System.out.print(isWall(x,y)?"#":".");
+					System.out.print(isWall(x,y)?"#":".");
 			}
 			System.out.println("");
 		}
 	}
 
+	void findRoute(){
+		findRoute(0,1,1,new StringBuffer());
+	}
+
+	
 	// recursive
-	void findRoute(int steps, int x, int y){
-		if(visited(x,y)) return;
-		if(isWall(x,y)) return;
+	boolean findRoute(int steps, int x, int y,StringBuffer route){
+		if(visited(x,y,route)) return true;
+		if(isWall(x,y)) return true;
+		if(x<0 || y<0) return true;
+		if(x>max || y>max) return true;
+		route.append("("+x+","+y+"),");
+		//System.out.println("Checking "+route);
 		if(x==tx && y==ty){
-			steps--;
+			//steps--;
 			if(steps<dist) dist=steps;
-			return;
+			route.append("="+steps);
+			//System.out.println(route);
+			return true;
 		}
-		if(x<0 || y<0) return;
-		if(x>max || y>max) return;
 			 
-		// if we get here, we must be a valid route
+		// if we get here, we must be a valid (non-terminal) route
 		steps++;
-		visit(x,y);
-		findRoute(steps,x,y-1);
-		findRoute(steps,x-1,y);
-		findRoute(steps,x,y+1);
-		findRoute(steps,x+1,y);
+		
+		findRoute(steps,x,y-1,new StringBuffer(route));
+		findRoute(steps,x-1,y,new StringBuffer(route));
+		findRoute(steps,x,y+1,new StringBuffer(route));
+		findRoute(steps,x+1,y,new StringBuffer(route));
+
+		return false;
 	}
 
-	void visit (int x, int y){
-		visited.add("("+x+","+y+")");
-	}
 
-	boolean visited(int x,int y){
-		return (visited.contains("("+x+","+y+")"));
+	boolean visited(int x,int y,StringBuffer route){
+		if(route==null) return false;
+		return (route.toString().indexOf("("+x+","+y+")")!=-1);
 	}
 }
 			
