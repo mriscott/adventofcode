@@ -4,8 +4,10 @@ public class Solution{
 	int fav;
 	int tx;
 	int ty;
+	 
 	int dist;
 	int max;
+	Set everVisited;
 
 	public static void main(String [] args){
 		Solution test=new Solution(10);
@@ -16,19 +18,15 @@ public class Solution{
 		part1.setTarget(31,39,max);
 		System.out.println("Part1: "+part1.dist);
 
-		int tot=0;
-		for(int x=0;x<max;x++){
-			for(int y=0;y<max;y++){
-				part1.setTarget(x,y,max);
-				if (part1.dist<=50) tot++;
-				System.out.println("("+x+","+y+") =>"+part1.dist);
-			}
-		}
-		System.out.println("Part2: "+tot);
+		Solution part2=new Solution(1362);
+
+		System.out.println("Part2: "+part2.findAllTargets(48));
+
+
 	}
 
 	void runTests(){
-		printGrid();
+			//		printGrid();
 		int max=10;
 		assertDist(1,1,max,0);
 		assertDist(0,1,max,1);
@@ -36,6 +34,24 @@ public class Solution{
 		assertDist(2,2,max,2);
 		assertDist(3,1,max,4);
 		assertDist(7,4,max,11);
+		printGrid();
+		assertTargets(0,1);
+		assertTargets(1,3);
+		assertTargets(2,7);
+		assertTargets(3,8);
+		assertTargets(4,11);
+	}
+
+	void assertTargets(int max, int exp){
+		int got=findAllTargets(max);
+		if(got!=exp){
+			for(Object o:everVisited){
+				System.out.println(o.toString());
+			}
+			throw new IllegalArgumentException("Max:"+max+" expected "+exp+", got "+got);
+		}
+		System.out.println("OK: "+max+" => "+exp);
+		
 	}
 
 	void assertDist(int x,int y,int m, int e){
@@ -47,11 +63,23 @@ public class Solution{
 			
 	}
 
+	int findAllTargets(int m){
+		tx=-1;
+		ty=-1;
+		max=m;
+		dist=0000;
+		everVisited=new HashSet();
+		findRoute();
+		return everVisited.size();
+		
+	}
+
 	void setTarget(int x, int y,int m){
 		tx=x;
 		ty=y;
 		max=m;
 		dist=99999;
+		everVisited=new HashSet();
 		if(!isWall(x,y))		findRoute();
 	}
 
@@ -93,7 +121,7 @@ public class Solution{
 		if(visited(x,y,route)) return true;
 		if(isWall(x,y)) return true;
 		if(x<0 || y<0) return true;
-		if(x>max || y>max) return true;
+		if(max>2 && (x>max || y>max)) return true;
 		route.append("("+x+","+y+"),");
 		//System.out.println("Checking "+route);
 		if(x==tx && y==ty){
@@ -105,7 +133,16 @@ public class Solution{
 		}
 			 
 		// if we get here, we must be a valid (non-terminal) route
+		everVisited.add("("+x+","+y+")");
+
+		// for finding all locations
+		if(tx==-1 && ty==-1 && steps>=max) {
+				//System.out.println(route.toString()+" - "+steps);
+				return true;
+		}
 		steps++;
+	 
+		
 		
 		findRoute(steps,x,y-1,new StringBuffer(route));
 		findRoute(steps,x-1,y,new StringBuffer(route));
