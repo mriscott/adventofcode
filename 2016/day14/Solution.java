@@ -7,16 +7,17 @@ public class Solution
 	List <Key>keys;
 	String salt;
 	int KEYS=65;
-	
+	boolean stretched=false;
 
 	public class Key{
-		int id;
+		long id;
 		String hash;
 		String triples;
 		String pents;
 		MessageDigest md;
 
-		public Key(int id){
+
+		public Key(long id){
 			this.id=id;
 			hash=getDigest(""+salt+id);
 			findRuns();
@@ -62,8 +63,14 @@ public class Solution
 			try{
 				if(md==null) md = MessageDigest.getInstance("MD5");
 				byte[] bytesOfMessage = input.getBytes("UTF-8");
-				byte[] theMD5digest = md.digest(bytesOfMessage);
-				return bytesToHex(theMD5digest);
+				bytesOfMessage = md.digest(bytesOfMessage);
+				if(stretched){
+					for(int x=0;x<2016;x++){
+						bytesOfMessage=bytesToHex(bytesOfMessage).getBytes("UTF-8");
+						bytesOfMessage = md.digest(bytesOfMessage);
+					}
+				}
+				return bytesToHex(bytesOfMessage);
 			}catch (Exception e){
 				e.printStackTrace();
 				throw new RuntimeException(e);
@@ -88,18 +95,27 @@ public class Solution
 	public static void main(String [] args){
 		Solution test=new Solution("abc");
 		test.runTests();
+		Solution stest=new Solution("abc",true);
+		stest.stretchTests();
 		Solution real=new Solution("cuanljph");
 		System.out.println("Part1: "+real.keys.get(63).id);
+		Solution real2=new Solution("cuanljph",true);
+		System.out.println("Part2: "+real2.keys.get(63).id);
 	}
 		
-	public Solution(String thesalt){
+	public Solution(String thesalt,boolean stretch){
 		salt=thesalt;
+		stretched=stretch;
 		poss=new ArrayList<Key>();
 		keys=new ArrayList<Key>();
 		findKeys();
 	}
 
-	void addPossible(int x){
+	public Solution(String thesalt){
+		this(thesalt,false);
+	}
+
+	void addPossible(long x){
 		Key key=new Key(x);
 		if(key.hasTriple()){
 			poss.add(key);
@@ -108,13 +124,14 @@ public class Solution
 	
 	void findKeys(){
 		// populate first 1000
-		for(int x=0;x<=1000;x++){
+		for(long x=0;x<=1000;x++){
 			addPossible(x);
 		}
 		// now loop through looking for keys
 		Key nextposs=poss.get(0);
 		poss.remove(0);
-		keys:for(int x=0;keys.size()<KEYS;x++){
+		keys:for(long x=0;keys.size()<KEYS;x++){
+			if(x%100==0) System.out.print("\r - "+x);
 			addPossible(x+1000);
 			if(x==nextposs.id){
 
@@ -122,11 +139,11 @@ public class Solution
 					for (Key key:poss){
 						if(key.hasPent(ch)){
 							keys.add(nextposs);
-							System.out.println(" - "+keys.size()+" "+nextposs.id+"("+ch+") "+nextposs.hash+" <- "+key.id+" "+key.hash);
 							if(key.id<=nextposs.id) throw new RuntimeException("error in "+nextposs.id);
 							if(key.id-nextposs.id>999) throw new RuntimeException("error in "+nextposs.id);
 							nextposs=poss.get(0);
 							poss.remove(0);
+							System.out.println("\rFound key:"+keys.size());
 							
 							continue keys;
 						}
@@ -136,8 +153,8 @@ public class Solution
 					poss.remove(0);
 				}
 			
-			if(x>300000) throw new RuntimeException("out of numbers");
 		}
+		System.out.println("");
 	}
 
 	void runTests(){
@@ -152,6 +169,21 @@ public class Solution
 		if(second.id!=92) throw new RuntimeException("First key should be 92");
 		Key sixtyFour=keys.get(63);
 		if(sixtyFour.id!=22728) throw new RuntimeException("Last key wrong: "+sixtyFour.id);
+		System.out.println("Part 1 tests complete");
+		
+	}
+
+	void stretchTests(){
+		Key key0=new Key(0);
+		if(!key0.hash.equals("a107ff634856bb300138cac6568c0f24")) throw new RuntimeException("Stretch has wrong:"+key0.hash);
+		Key key5=new Key(5);
+		if(key5.hasTriple()==false) throw new IllegalArgumentException ("Key 5 should have a triple");
+		System.out.println(key5.hash+" OK");
+		Key firstKey=keys.get(0);
+		if(firstKey.id!=10) throw new RuntimeException("First key should be 10");
+		Key lastKey=keys.get(63);
+		if(lastKey.id!=22551) throw new RuntimeException("Last key should be 22551");
+		System.out.println("Part 2 tests complete");
 	}
 
 	
