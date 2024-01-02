@@ -1,0 +1,18 @@
+public class Day2 extends Utils{
+	
+	int part=1;
+	public static void main(String [] args){
+				 setDebug(true);
+	}
+	public Day1(String file){
+		this(file,1);
+	}
+	public Day1 (String file, int part){
+		this.part=part;
+		safeRead(file);
+	}
+	
+  
+	void process (String line){
+	}
+}
