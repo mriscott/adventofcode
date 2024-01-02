@@ -1,4 +1,4 @@
-public class Day2 extends Utils{
+public class Day1 extends Utils{
 	
 	int part=1;
 	public static void main(String [] args){

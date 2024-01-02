@@ -1,3 +1,6 @@
+day3 : Day3.class
+	java Day3
+
 day2 : Day2.class
 	java Day2
 
