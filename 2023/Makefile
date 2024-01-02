@@ -1,8 +1,11 @@
+day2 : Day2.class
+	java Day2
+
 day1 : Day1.class
 	java Day1
 
-Day1.class : Day1.java
-	javac Day1.java Utils.java
+%.class :%.java
+	javac  $<  Utils.java
 
 clean:
 	rm *.class
