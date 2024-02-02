@@ -23,7 +23,8 @@ sub processcard($$){
 }
 
 sub checkfile($){
-	($filename)=@_;
+    ($filename)=@_;
+    @cardcopies=();
 	$total=0;
 	open (FILE, $filename);
 	foreach (<FILE>)
@@ -36,17 +37,12 @@ sub checkfile($){
 		$cp=$cardcopies[$cardno];
 
 
-#		print ("Card $cardno\n");
 		for ($x=1;$x<=$score;$x++){
 			$y=$cardno+$x;
-			$z=$cardcopies[$y];
-			$z+=$cp;
-			$cardcopies[$y]=$z;
-#			print ("Card $y copies $z\n");
+			$cardcopies[$y]+=$cp;
 		}
-#		print ("Care $cardno score $score copies $cardcopies[$cardno]\n");
+#		print ("Card $cardno score $score copies $cardcopies[$cardno]\n");
 		$total+=$cardcopies[$cardno];
-#		print "$total\n";
 	}
 	close FILE;
 	return $total;
