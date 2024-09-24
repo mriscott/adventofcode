@@ -1,0 +1,119 @@
+import java.util.*;
+public class Day5 extends Utils{
+
+	
+	int part=1;
+	long []seeds;
+	Hashtable mappers;
+	Mapper mapper;
+	public static void main(String [] args){
+				 setDebug(true);
+				 Day5 test=new Day5("day5/test");
+				 test(35L,test.findLowestLocation());
+				 Day5 input=new Day5("day5/input");
+				 System.out.println("Part 1: "+input.findLowestLocation());
+				 
+				 
+
+	}
+	public Day5(String file){
+		this(file,1);
+	}
+	public Day5 (String file, int part){
+		this.part=part;
+		mappers = new Hashtable();
+		safeRead(file);
+	}
+
+	long findLowestLocation(){
+		long min=Long.MAX_VALUE;
+		for(int x=0;x<seeds.length;x++){
+			long num=seeds[x];
+			String from="seed";
+			while(true){
+				Mapper m =(Mapper)mappers.get(from);
+				String to=m.to;
+				long newnum=m.convert(num);
+				debug (from+" "+num+" -> "+to+" "+newnum);
+				num=newnum;
+				if(to.equals("location")){
+					if(min>num) min=num;
+					break;
+				}
+				from=to;
+			}
+			debug("---");
+
+		}	
+		return min;
+	}
+	
+  
+	void process (String line){
+		try {
+			if (line.startsWith("seeds:")){
+				String seedLine=line.substring(7);
+				seeds=strToInts(seedLine);
+			}
+			if(line.contains("-to-")){
+				line=line.replaceAll(" map:","");
+				mapper=new Mapper(line);
+				mappers.put(mapper.from,mapper);
+			}
+			if(line.matches("[0-9].*")){
+				long [] range=strToInts(line);
+				mapper.addRange(range[0],range[1],range[2]);
+			}		
+		} catch(NumberFormatException e){
+			e.printStackTrace();
+			throw new RuntimeException("Bad line "+line);
+		}
+		
+	}
+
+	long [] strToInts(String str) throws NumberFormatException{
+		str=str.trim();
+		String [] nums=str.split(" ");
+		long[] ints=new long[nums.length];
+		for(int x=0;x<nums.length;x++){
+			ints[x]=Long.parseLong(nums[x]);
+		}
+		return ints;
+	}
+
+	class Mapper{
+		String from;
+		String to;
+		List ranges;
+		public Mapper(String name){
+			String [] spl=name.split("-");
+			if((spl.length!=3) || !spl[1].equals("to")) throw new IllegalArgumentException("Bad map "+name);
+			from=spl[0];
+			to=spl[2];
+			ranges = new ArrayList();
+		}
+		public void addRange(long a, long b, long c){
+			Range r=new Range(a,b,c);
+			ranges.add(r);
+		}
+
+		long convert(long in){
+			for(Object r:ranges){
+				Range rr=(Range)r;
+				if(in>=rr.sourceStart && in<=(rr.sourceStart+rr.length)){
+					in+=(rr.destStart-rr.sourceStart);
+					return in;
+				}
+			}
+			return in;
+		}
+		class Range{
+			long destStart,sourceStart,length;
+			public Range(long x,long y, long z){
+				destStart=x;
+				sourceStart=y;
+				length=z;
+			}
+		}
+	}
+}

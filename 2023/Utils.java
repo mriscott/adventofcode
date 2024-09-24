@@ -10,6 +10,9 @@ public abstract class Utils
     public static void setDebug(boolean d){
 	debug=d;
     }
+    public static void test(long x, long y){
+	if (x!=y) throw new RuntimeException("Test failed: Expected "+x+", got "+y);
+    }
 
     public static void test(int x, int y){
 	if (x!=y) throw new RuntimeException("Test failed: Expected "+x+", got "+y);
