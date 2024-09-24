@@ -12,9 +12,9 @@ public class Day3 extends Utils{
 		test(4361,test.partsum);
 		Day3 inp=new Day3("day3/input.3");
 		System.out.println("Part 1: "+inp.partsum);
-		setDebug(true);
+		setDebug(false);
 		test(467835,test.findGears());
-		System.out.println("Part 1: "+inp.findGears());
+		System.out.println("Part 2: "+inp.findGears());
 	}
 	public Day3(String file){
 		this(file,1);
