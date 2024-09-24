@@ -7,11 +7,14 @@ public class Day5 extends Utils{
 	Hashtable mappers;
 	Mapper mapper;
 	public static void main(String [] args){
-				 setDebug(true);
+				 setDebug(false);
 				 Day5 test=new Day5("day5/test");
 				 test(35L,test.findLowestLocation());
+				 test(46,test.findLowestLocation2());
 				 Day5 input=new Day5("day5/input");
+				 test( 240320250,input.findLowestLocation());
 				 System.out.println("Part 1: "+input.findLowestLocation());
+				 System.out.println("Part 2: "+input.findLowestLocation2());
 				 
 				 
 
@@ -25,24 +28,47 @@ public class Day5 extends Utils{
 		safeRead(file);
 	}
 
+	long seedToLoc(long num){
+		String from="seed";
+		while(true){
+			Mapper m =(Mapper)mappers.get(from);
+			String to=m.to;
+			long newnum=m.convert(num);
+			debug (from+" "+num+" -> "+to+" "+newnum);
+			num=newnum;
+			if(to.equals("location")){
+				break;
+			}
+			from=to;
+		}
+		return num;
+	}
+
+
 	long findLowestLocation(){
 		long min=Long.MAX_VALUE;
 		for(int x=0;x<seeds.length;x++){
-			long num=seeds[x];
-			String from="seed";
-			while(true){
-				Mapper m =(Mapper)mappers.get(from);
-				String to=m.to;
-				long newnum=m.convert(num);
-				debug (from+" "+num+" -> "+to+" "+newnum);
-				num=newnum;
-				if(to.equals("location")){
-					if(min>num) min=num;
-					break;
-				}
-				from=to;
-			}
+			long num=seedToLoc(seeds[x]);
 			debug("---");
+			if(min>num) min=num;
+
+		}	
+		return min;
+	}
+
+	long findLowestLocation2(){
+		long min=Long.MAX_VALUE;
+		for(int x=0;x<seeds.length;x++){
+			long lo=seeds[x];
+			x++;
+			long range=seeds[x];
+			System.out.println("Seed:"+lo+" range:"+range);
+			long hi=lo+range;
+			for (long n=lo;n<=hi;n++){
+				long num=seedToLoc(n);
+				debug("---");
+				if(min>num) min=num;
+			}
 
 		}	
 		return min;
