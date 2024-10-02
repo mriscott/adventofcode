@@ -1,3 +1,9 @@
+run.% : Day%.class
+	./javarun $<
+
+day4 : Day4.class
+	java Day4
+
 day3 : Day3.class
 	java Day3
 
