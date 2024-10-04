@@ -70,21 +70,21 @@ sub getMinLoc1(){
 }
 sub getMinLoc2(){
 	$seed=0;
-	$min=1500;
+	$min=0;
 	$done=0;
 	
 
 	# get ranges
 	while($done==0){
-		$min++;
+	    $min++;
 		$seed=locToSeed($min);
-		print ("Progress: $min->$seed\n") ;
 		for($x=0;$x<@seeds;$x+=2){
 			print ("Range:$seeds[$x]-") if($min==1);
 			print ($seeds[$x]+$seeds[$x+1])if($min==1);
 			print ("\n")if($min==1);
 			if($seed>$seeds[$x]&& $seed<($seeds[$x]+$seeds[$x+1])){
 				$done=1;
+				print("$seed -> $min\n");
 				last;
 			}
 		}
