@@ -11,11 +11,13 @@ public class Day5 extends Utils{
 				 Day5 test=new Day5("day5/test");
 				 test(35L,test.findLowestLocation());
 				 test(46,test.findLowestLocation2());
+				 System.out.println("Tests passed");
 				 Day5 input=new Day5("day5/input");
 				 test( 240320250,input.findLowestLocation());
 				 System.out.println("Part 1: "+input.findLowestLocation());
 				 System.out.println("Part 2: "+input.findLowestLocation2());
-				 
+				 System.out.println("Part 2: 28580590 too high");
+				 System.out.println("Part 2: 50952572 also too high");
 				 
 
 	}
@@ -27,6 +29,8 @@ public class Day5 extends Utils{
 		mappers = new Hashtable();
 		safeRead(file);
 	}
+	long diff=0;
+	long tillChange=0;
 
 	long seedToLoc(long num){
 		String from="seed";
@@ -34,6 +38,11 @@ public class Day5 extends Utils{
 			Mapper m =(Mapper)mappers.get(from);
 			String to=m.to;
 			long newnum=m.convert(num);
+			if(newnum!=num){
+				if(tillChange!=-1 && tillChange<m.tillChange){
+					tillChange=m.tillChange;
+				}
+			}
 			debug (from+" "+num+" -> "+to+" "+newnum);
 			num=newnum;
 			if(to.equals("location")){
@@ -57,22 +66,76 @@ public class Day5 extends Utils{
 	}
 
 	long findLowestLocation2(){
+		long start=new java.util.Date().getTime();
 		long min=Long.MAX_VALUE;
-		for(int x=0;x<seeds.length;x++){
-			long lo=seeds[x];
-			x++;
-			long range=seeds[x];
-			System.out.println("Seed:"+lo+" range:"+range);
-			long hi=lo+range;
-			for (long n=lo;n<=hi;n++){
-				long num=seedToLoc(n);
-				debug("---");
-				if(min>num) min=num;
+		CalcThread [] threads=new CalcThread[seeds.length/2];
+		int tnum=0;
+			for(int x=0;x<seeds.length;x++){
+				long lo=seeds[x];
+				x++;
+				long range=seeds[x];
+				System.out.println("Seed:"+lo+" range:"+range);
+				long hi=lo+range;			
+				CalcThread thr=new CalcThread(lo,hi,this,tnum);
+				thr.start();
+				threads[tnum]=thr;
+				tnum++;
+			}
+			for(int x=0;x<tnum;x++){
+				try{
+					System.out.println("Waiting for thread "+x);
+					threads[x].join();
+					if(threads[x].min<min){
+						min=threads[x].min;
+					}
+				}catch(InterruptedException e){
+					// bother
+					throw new RuntimeException("It's all gone Pete Tong");
+				}
+			}
+			long end=new java.util.Date().getTime();
+			long timetook=(long)((end-start)/1000);
+			System.out.println("Took "+timetook+"s");
+
+			return min;
+		}
+
+		class CalcThread extends Thread     {
+			long min=Long.MAX_VALUE;
+			long start,end;
+			Day5 parent;
+			int tnum;
+
+			public CalcThread(long start, long end,Day5 parent,int tnum){
+				this.start=start;
+				this.end=end;
+				this.parent=parent;
+				this.tnum=tnum;
+			}
+		
+			public void run(){
+				long time=new java.util.Date().getTime();
+				System.out.println("Thread "+tnum+ " started");
+				for (long n=start;n<end;n++){
+					synchronized(parent){
+						long num=parent.seedToLoc(n);
+						debug("---");
+						if(min>num) min=num;
+						if(parent.tillChange>0){
+							n+=tillChange;
+							tillChange=-1;
+						}
+					}
+				}
+				long took=new java.util.Date().getTime()-time;
+				took=(long)took/1000;
+				System.out.println("Thread "+tnum+ " ended after "+took+"s");
+				System.out.println("Thread "+tnum+" min:"+min);
+
 			}
 
-		}	
-		return min;
-	}
+		
+		}
 	
   
 	void process (String line){
@@ -111,6 +174,7 @@ public class Day5 extends Utils{
 		String from;
 		String to;
 		List ranges;
+		long tillChange;
 		public Mapper(String name){
 			String [] spl=name.split("-");
 			if((spl.length!=3) || !spl[1].equals("to")) throw new IllegalArgumentException("Bad map "+name);
@@ -126,19 +190,33 @@ public class Day5 extends Utils{
 		long convert(long in){
 			for(Object r:ranges){
 				Range rr=(Range)r;
-				if(in>=rr.sourceStart && in<=(rr.sourceStart+rr.length)){
-					in+=(rr.destStart-rr.sourceStart);
-					return in;
+				long out=rr.convert(in);
+				if(out!=in) {
+					tillChange=rr.tillChange;
+					return out;
 				}
+
 			}
 			return in;
 		}
 		class Range{
-			long destStart,sourceStart,length;
+			long tillChange;
+			long destStart,sourceStart,sourceEnd,offset,length;
 			public Range(long x,long y, long z){
 				destStart=x;
 				sourceStart=y;
 				length=z;
+				offset=destStart-sourceStart;
+				sourceEnd=sourceStart+z;
+			}
+
+			public long convert(long in){
+				if(in>=sourceStart && in<=(sourceStart+length)){
+					tillChange=sourceStart+length-in;
+					in+=(destStart-sourceStart);
+					return in;
+				}
+				return in;
 			}
 		}
 	}
