@@ -12,12 +12,13 @@ public class Day5 extends Utils{
 				 test(35L,test.findLowestLocation());
 				 test(46,test.findLowestLocation2());
 				 System.out.println("Tests passed");
+				 //if(true) return;
 				 Day5 input=new Day5("day5/input");
 				 test( 240320250,input.findLowestLocation());
 				 System.out.println("Part 1: "+input.findLowestLocation());
 				 System.out.println("Part 2: "+input.findLowestLocation2());
 				 System.out.println("Part 2: 28580590 too high");
-				 System.out.println("Part 2: 50952572 also too high");
+				 //System.out.println("Part 2: 50952572 also too high");
 				 
 
 	}
@@ -30,20 +31,21 @@ public class Day5 extends Utils{
 		safeRead(file);
 	}
 	long diff=0;
-	long tillChange=0;
+	long tillChange=-1;
 
 	long seedToLoc(long num){
 		String from="seed";
+		tillChange=-1;
 		while(true){
 			Mapper m =(Mapper)mappers.get(from);
 			String to=m.to;
 			long newnum=m.convert(num);
 			if(newnum!=num){
-				if(tillChange!=-1 && tillChange<m.tillChange){
+				if(tillChange==-1 || tillChange>m.tillChange){
 					tillChange=m.tillChange;
 				}
 			}
-			debug (from+" "+num+" -> "+to+" "+newnum);
+			debug (from+" "+num+" -> "+to+" "+newnum+" ("+tillChange+")");
 			num=newnum;
 			if(to.equals("location")){
 				break;
@@ -68,76 +70,32 @@ public class Day5 extends Utils{
 	long findLowestLocation2(){
 		long start=new java.util.Date().getTime();
 		long min=Long.MAX_VALUE;
-		CalcThread [] threads=new CalcThread[seeds.length/2];
-		int tnum=0;
-			for(int x=0;x<seeds.length;x++){
-				long lo=seeds[x];
-				x++;
-				long range=seeds[x];
-				System.out.println("Seed:"+lo+" range:"+range);
-				long hi=lo+range;			
-				CalcThread thr=new CalcThread(lo,hi,this,tnum);
-				thr.start();
-				threads[tnum]=thr;
-				tnum++;
-			}
-			for(int x=0;x<tnum;x++){
-				try{
-					System.out.println("Waiting for thread "+x);
-					threads[x].join();
-					if(threads[x].min<min){
-						min=threads[x].min;
-					}
-				}catch(InterruptedException e){
-					// bother
-					throw new RuntimeException("It's all gone Pete Tong");
+		for(int x=0;x<seeds.length;x+=2){
+			long lo=seeds[x];
+			long range=seeds[x+1];
+			System.out.println("Seed:"+lo+" range:"+range);
+			long hi=lo+range;
+			for (long n=lo;n<hi;n++){
+				long num=seedToLoc(n);
+				if(min>num) min=num;
+				if(tillChange>0){
+					debug("Skipping "+tillChange);
+					n+=tillChange-1;
+					tillChange=-1;
+					
 				}
 			}
-			long end=new java.util.Date().getTime();
-			long timetook=(long)((end-start)/1000);
-			System.out.println("Took "+timetook+"s");
-
-			return min;
 		}
-
-		class CalcThread extends Thread     {
-			long min=Long.MAX_VALUE;
-			long start,end;
-			Day5 parent;
-			int tnum;
-
-			public CalcThread(long start, long end,Day5 parent,int tnum){
-				this.start=start;
-				this.end=end;
-				this.parent=parent;
-				this.tnum=tnum;
-			}
+			
+			
+		long end=new java.util.Date().getTime();
+		long timetook=(long)((end-start)/1000);
+		System.out.println("Took "+timetook+"s");
 		
-			public void run(){
-				long time=new java.util.Date().getTime();
-				System.out.println("Thread "+tnum+ " started");
-				for (long n=start;n<end;n++){
-					synchronized(parent){
-						long num=parent.seedToLoc(n);
-						debug("---");
-						if(min>num) min=num;
-						if(parent.tillChange>0){
-							n+=tillChange;
-							tillChange=-1;
-						}
-					}
-				}
-				long took=new java.util.Date().getTime()-time;
-				took=(long)took/1000;
-				System.out.println("Thread "+tnum+ " ended after "+took+"s");
-				System.out.println("Thread "+tnum+" min:"+min);
+		return min;
+	}
 
-			}
 
-		
-		}
-	
-  
 	void process (String line){
 		try {
 			if (line.startsWith("seeds:")){
@@ -188,6 +146,7 @@ public class Day5 extends Utils{
 		}
 
 		long convert(long in){
+			tillChange=-1;
 			for(Object r:ranges){
 				Range rr=(Range)r;
 				long out=rr.convert(in);
@@ -211,9 +170,12 @@ public class Day5 extends Utils{
 			}
 
 			public long convert(long in){
+				tillChange=-1;
 				if(in>=sourceStart && in<=(sourceStart+length)){
 					tillChange=sourceStart+length-in;
+					long oin=in;
 					in+=(destStart-sourceStart);
+					debug(" - "+oin+"->"+in+"("+tillChange+")");
 					return in;
 				}
 				return in;
