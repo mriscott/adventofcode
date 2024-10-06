@@ -74,10 +74,9 @@ public class Day5 extends Utils{
 			long lo=seeds[x];
 			long range=seeds[x+1];
 			System.out.println("Seed:"+lo+" range:"+range);
-			long hi=lo+range;
-			for (long n=lo;n<hi;n++){
-				long num=seedToLoc(n);
-				if(min>num) min=num;
+			for (long n=0;n<range;n++){
+				long loc=seedToLoc(n+lo);
+				if(min>loc) min=loc;
 				if(tillChange>0){
 					debug("Skipping "+tillChange);
 					n+=tillChange-1;
@@ -142,21 +141,29 @@ public class Day5 extends Utils{
 		}
 		public void addRange(long a, long b, long c){
 			Range r=new Range(a,b,c);
+			for(Object x : ranges){
+				Range rr=(Range)x;
+				//				if(rr.overlaps(r)) throw new IllegalArgumentException("Range "+rr+" and "+ r+" overlap");
+			}
 			ranges.add(r);
 		}
 
+
 		long convert(long in){
 			tillChange=-1;
+			long retval=in;
 			for(Object r:ranges){
 				Range rr=(Range)r;
-				long out=rr.convert(in);
+				long out=rr.convert(in); 
 				if(out!=in) {
 					tillChange=rr.tillChange;
-					return out;
+					if(retval!=in) throw new RuntimeException("Overlapping ranges:"+rr);
+					retval=out;
 				}
 
 			}
-			return in;
+			
+			return retval;
 		}
 		class Range{
 			long tillChange;
@@ -169,9 +176,34 @@ public class Day5 extends Utils{
 				sourceEnd=sourceStart+z;
 			}
 
+			public String toString(){
+				return(""+destStart+","+sourceStart+","+length);
+			}
+
+			public boolean overlaps(Range r){
+				if(sourceStart<r.sourceStart){
+					if(length<=(r.sourceStart-sourceStart)) {
+						System.out.println(""+r+" before "+this);
+						return false;
+					}else{
+						System.out.println(""+r+" overlaps "+this+" from below");
+						return true;
+					}
+				}else{
+					if(r.length<=(sourceStart-r.sourceStart)) {
+						System.out.println(""+r+" after "+this);
+						return false;
+					}else{
+						System.out.println(""+r+" overlaps "+this+" from above");
+						return true;
+					}
+				}
+
+			}
+
 			public long convert(long in){
 				tillChange=-1;
-				if(in>=sourceStart && in<=(sourceStart+length)){
+				if(in>=sourceStart && in<(sourceStart+length)){
 					tillChange=sourceStart+length-in;
 					long oin=in;
 					in+=(destStart-sourceStart);
