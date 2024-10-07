@@ -7,7 +7,12 @@ public class Day7 extends Utils{
 	public static void main(String [] args){
 				 setDebug(false);
 				 Day7 test = new Day7("day7/test");
+				test.printHands();
 				 Utils.test(6440,test.getWinnings());
+				test.part=2;
+				test.sort();
+				test.printHands();
+				 Utils.test(5905,test.getWinnings());
 				 Day7 real=new Day7("day7/input");
 				 System.out.println("Part 1: "+real.getWinnings());
 				 
@@ -19,8 +24,13 @@ public class Day7 extends Utils{
 	public Day7 (String file, int part){
 		this.part=part;
 		safeRead(file);
-		printHands();
+		//printHands();
 		debug("Sorting");
+		sort();
+
+	}
+	void sort(){
+		for(Hand x:hands)x.calcScore();
 		Collections.sort(hands,Collections.reverseOrder());
 	}
 
@@ -59,7 +69,7 @@ public class Day7 extends Utils{
 			String [] splt=str.split(" ");
 			cards=splt[0];
 			bid=Integer.parseInt(splt[1]);
-			score=calcScore();
+			calcScore();
 		}
 
 		int cardToVal(char x){
@@ -82,10 +92,11 @@ public class Day7 extends Utils{
 					default:
 						  throw new IllegalArgumentException("Unknown card :"+x);
 				}
+				if(part==2 && x=='J') v=0;
 				debug(""+x+"->"+v);
 				return v;
 		}
-
+	    
 		int calcScore(){
 			int [] count=new int [14]; 
 			for (char x : cards.toCharArray()){
@@ -98,7 +109,8 @@ public class Day7 extends Utils{
 			boolean four=false;
 			boolean three=false;
 			int pair=0;
-			
+
+			int retval=0;
 
 			// look for full hice
 			for (int x=0;x<count.length;x++){
@@ -107,16 +119,87 @@ public class Day7 extends Utils{
 				if(count[x]==3) three=true;
 				if(count[x]==2) pair++;
 			}
-			if(five) return 6;
-			if(four) return 5;
+			
+			if(pair==1) retval=1;
+			if(pair==2) retval=2;
 			if(three){
-				if(pair==1) return 4;
-				else return 3;
+				if(pair==1) retval=4;
+				else retval=3;
 			}
-			if(pair==2) return 2;
-			if(pair==1) return 1;
-			return 0;
+			
+			if(four) retval=5;
+			if(five) retval=6;
+			if(part==2){
+			    if(count[0]==1){
+				switch(retval){
+				case 0: retval=1; // now a pair
+				    break;
+				case 1: retval=3; // pair ->3
+				    break;
+				case 2: retval=4; //2 pairs -> full house
+				    break;
+				case 3: retval=5; // 3 -> 4
+				    break;
+				case 4: // not possible
+				    throw new RuntimeException("Prog error");
+				case 5: retval=6;
+					break;
+				case 6: // no more possibles
+				default:
+				    throw new RuntimeException("Prog error");
+				}
 
+				
+				 
+			    if(count[0]==2){
+				switch(retval){
+				case 0: retval=1;
+				    throw new RuntimeException("Prog error");
+				case 1: retval=3; // pair ->3
+				    break;
+				case 2: retval=5; //2 pairs -> 4
+				    break;
+				case 3: retval=6; // not possible
+				    throw new RuntimeException("Prog error");
+				case 4: retval=6; //Fh -> 6
+				    break;
+				case 5: retval=6;
+					// no more possibles
+				default:
+				    throw new RuntimeException("Prog error");
+				}
+
+				
+				 
+		  
+			    }
+			    if(count[0]==3){
+				switch(retval){
+				case 0: retval=1;
+				case 1: retval=3; 
+				case 2: retval=5; //2 pairs -> 4
+				    throw new RuntimeException("Prog error");
+				case 3: retval=6; // not possible
+				    throw new RuntimeException("Prog error");
+				case 4: 
+
+				    break;
+				case 5: retval=6;
+					// no more possibles
+				default:
+				    throw new RuntimeException("Prog error");
+				}
+
+				
+				 
+		  
+			    }
+				      
+			    
+			}
+			}
+			score=retval;
+		    return retval;
 		}
 		String getScore(){
 			return SCORENAMES[score];
