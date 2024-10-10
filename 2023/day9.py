@@ -16,7 +16,7 @@ def getLastNum(t):
         for x in range(len(nos)-1):
             n=nos[x+1]-nos[x]
             newnos.append(n)
-            tot+=n
+            tot+=abs(n)
         diffs.append(newnos[-1])
         if(tot==0):
             print(newnos)
