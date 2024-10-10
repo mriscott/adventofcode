@@ -1,7 +1,20 @@
 import re
 
+
+def notZeros(a):
+  for x in a:
+    if(x!=0):
+      return True
+  return False
+
+def getNextRow(nos):
+	newnos=[]
+	for x in range(len(nos)-1):
+		n=nos[x+1]-nos[x]
+		newnos.append(n)
+	return newnos
+
 def getLastNum(t):
-    print("Start:"+t)
     t=re.sub(" +"," ",t)
     nos=[]
     for x in t.split(" "):
@@ -9,45 +22,65 @@ def getLastNum(t):
     lastno=nos[-1]
     tot=1
     diffs=[]
-    while(tot!=0):
-        print(nos)
-        tot=0
-        newnos=[]
-        for x in range(len(nos)-1):
-            n=nos[x+1]-nos[x]
-            newnos.append(n)
-            tot+=abs(n)
-        diffs.append(newnos[-1])
-        if(tot==0):
-            print(newnos)
-            break
-        nos=newnos
+    while(notZeros(nos)):
+        nos=getNextRow(nos)
+        for x in nos:
+            tot+=x
+        diffs.append(nos[-1])
 
-    print (diffs)
     mno=lastno
     for x in diffs:
         mno+=x
-    print ("Answer:"+str(mno))
     return(mno)
 
+def getHistory(t):
+    starts=[]
+	
+    t=re.sub(" +"," ",t)
+    nos=[]
+    for x in t.split(" "):
+        nos.append(int(x))
+    lastno=nos[-1]
+    tot=1
+
+    diffs=[]
+    while(notZeros(nos)):
+        starts.append(nos[0])
+        nos=getNextRow(nos)
+    hist=[0]
+    r=1
+    for r in range(1,len(starts)+1):
+       l=starts[len(starts)-r]
+       s=l-hist[r-1]
+       hist.append(s)
+    return s
+
 f = open("day9/test", "r")
-tot=0
+pt1=0
+pt2=0
 for x in f:
-    tot+=getLastNum(x)
+    pt1+=getLastNum(x)
+    pt2+=getHistory(x)
 f.close()
 
-if(tot!=114):
+if(pt1!=114):
     print( "Part 1 test failed")
     exit
 
+if(pt2!=2):
+    print( "Part 2 test failed")
+    exit
 
 f = open("day9/input", "r")
-tot=0
+pt1=0
+pt2=0
 for x in f:
-    tot+=getLastNum(x)
+    pt1+=getLastNum(x)
+    pt2+=getHistory(x)
 f.close()
 
-print("Part 1: "+str(tot))
+print("Part 1: "+str(pt1))
+print("Part 2: "+str(pt2))
     
 
         
