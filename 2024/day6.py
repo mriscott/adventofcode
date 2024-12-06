@@ -42,6 +42,7 @@ def movey(y,d):
 def strpos(x,y):
         return f"({x},{y})"
 
+
 # find start pos
 posx=0
 posy=0
@@ -53,8 +54,11 @@ for r in grid:
         posy+=1
 
         d="U"
-
         
+
+startx=posx
+starty=posy
+
 visits={strpos(posx,posy)}
 while(True):
         xx=movex(posx,d)
@@ -68,13 +72,32 @@ while(True):
                 posx=xx
                 posy=yy
                 visits.add(strpos(posx,posy))
-
-        
-
-
-
+                
 pt1=len(visits)
 pt2=0
+
+for v in visits:
+        print(v)
+        posx=startx
+        posy=starty
+        d="U"
+        steps={strpos(posx,posy)+d}
+        while(True):
+                xx=movex(posx,d)
+                yy=movey(posy,d)
+                #print(strpos(posx,posy)+"->"+strpos(xx,yy)+" ("+d+")")
+                if(charat(xx,yy)=="*"):
+                        break
+                if(charat(xx,yy)=="#" or strpos(xx,yy)==v):
+                        d=turndict[d]
+                else:
+                        posx=xx
+                        posy=yy
+                        step=strpos(posx,posy)+d
+                        if(step in steps):
+                                pt2+=1
+                                break
+                        steps.add(step)
 
 
 print ("Part 1: ",str(pt1))
