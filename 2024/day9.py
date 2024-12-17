@@ -8,6 +8,7 @@ f.close()
 
 disk=[]
 def createDisk(str):
+	disk.clear()
 	bnum=0
 	for x in range(0,len(str),2):
 		l=int(str[x])
@@ -47,6 +48,36 @@ def defrag():
 					disk[x]=-1
 					break
 
+def defrag2():
+	prev=-1
+	count=0
+	for x in range(len(disk)-1,-1,-1):
+		if(x%1000==0):
+			print(x)
+
+		if(disk[x]==prev and prev!=-1):
+			count+=1
+			next
+
+		if(prev!=-1 and disk[x]!=prev):
+			count+=1
+			spc=0
+			if(prev!=-1):
+				for y in range(x):
+					if(disk[y]==-1):
+						spc+=1
+						if(spc==count):
+							for i in range(count):
+								disk[y-i]=prev
+								disk[x+i+1]=-1
+							count=-1
+
+
+					else:
+						spc=0
+			count=0
+		prev=disk[x]
+
 def checksum():
 	tot=0
 	for x in range(len(disk)):
@@ -60,19 +91,32 @@ def checksum():
 print("Tests")
 disk=[]
 createDisk(test)
-printDisk()
 defrag()
-printDisk()
 pt1=checksum()
 print ("Part 1: "+str(pt1))
 if pt1!=1928:
 	print ("FAIL") 
 
+
+
+createDisk(test)
+defrag2()
+pt2=checksum()
+print ("Part 2: "+str(pt2))
+if pt2!=2858:
+	print ("FAIL") 
+
+
 print("Input")
 
-disk=[]
 createDisk(input)
-defrag()
-pt1=checksum()
-print ("Part 1: "+str(pt1))
+#defrag()
+#pt1=checksum()
+#print ("Part 1: "+str(pt1))
+disk=[]
 
+createDisk(input)
+defrag2()
+pt2=checksum()
+print ("Part 2: "+str(pt2))
+print ("6323761820201 too high")
