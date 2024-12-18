@@ -1,4 +1,5 @@
 test="2333133121414131402"
+test2="2422222020"
 
 input=""
 f=open ("input.txt","r")
@@ -63,7 +64,7 @@ def defrag2():
 			count+=1
 			spc=0
 			if(prev!=-1):
-				for y in range(x):
+				for y in range(x+1):
 					if(disk[y]==-1):
 						spc+=1
 						if(spc==count):
@@ -76,6 +77,7 @@ def defrag2():
 					else:
 						spc=0
 			count=0
+		#printDisk()
 		prev=disk[x]
 
 def checksum():
@@ -100,19 +102,24 @@ if pt1!=1928:
 
 
 createDisk(test)
+printDisk()
 defrag2()
 pt2=checksum()
 print ("Part 2: "+str(pt2))
 if pt2!=2858:
 	print ("FAIL") 
 
+createDisk(test2)
+printDisk()
+defrag2()
+pt2=checksum()
 
 print("Input")
 
 createDisk(input)
 #defrag()
-#pt1=checksum()
-#print ("Part 1: "+str(pt1))
+pt1=checksum()
+print ("Part 1: "+str(pt1))
 disk=[]
 
 createDisk(input)
@@ -120,3 +127,4 @@ defrag2()
 pt2=checksum()
 print ("Part 2: "+str(pt2))
 print ("6323761820201 too high")
+print ("15711394184427 much too high")
