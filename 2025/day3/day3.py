@@ -12,6 +12,7 @@ for line in fileinput.input():
 					for b in range(a+1,len(line)):
 						for c in range(b+1,len(line)):
 							for d in range(c+1,len(line)):
+								print(d)
 								for e in range(d+1,len(line)):
 									for f in range(e+1,len(line)):
 										for g in range(f+1,len(line)):
