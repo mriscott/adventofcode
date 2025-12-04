@@ -5,6 +5,8 @@ pt2=0
 
 
 arr=[]
+
+
 def isRoll(x,y):
 	if(y<0 or y>=len(arr)):
 		return False
@@ -16,8 +18,8 @@ for line in fileinput.input():
 	line=line.rstrip()
 	arr.append(list(line))
 
-for y in range(1,len(arr)):
-	for x in range(1, len(arr[y])):
+for y in range(0,len(arr)):
+	for x in range(0, len(arr[y])):
 		if(isRoll(x,y)==False):
 			continue
 		tot=0
@@ -35,5 +37,4 @@ for y in range(1,len(arr)):
 			pt1=pt1+1
 		
 
-print(arr)
 print("Part 1 : "+str(pt1))	
