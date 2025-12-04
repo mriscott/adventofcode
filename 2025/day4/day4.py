@@ -18,23 +18,36 @@ for line in fileinput.input():
 	line=line.rstrip()
 	arr.append(list(line))
 
-for y in range(0,len(arr)):
-	for x in range(0, len(arr[y])):
-		if(isRoll(x,y)==False):
-			continue
-		tot=0
-		for xx in range(-1,2):
-			if(tot==4):
-				break
-			for yy in range(-1,2):
-				if(xx==0 and yy==0):
-					continue
-				if(isRoll(x+xx,y+yy)):
-					tot=tot+1
-					if(tot==4):
-						break
-		if(tot<4):
-			pt1=pt1+1
-		
+
+while(True):
+	k=[]
+	cnt=0
+	for y in range(0,len(arr)):
+		for x in range(0, len(arr[y])):
+			if(isRoll(x,y)==False):
+				continue
+			tot=0
+			for xx in range(-1,2):
+				if(tot==4):
+					break
+				for yy in range(-1,2):
+					if(xx==0 and yy==0):
+						continue
+					if(isRoll(x+xx,y+yy)):
+						tot=tot+1
+						if(tot==4):
+							break
+			if(tot<4):
+				cnt=cnt+1
+				ps=[x,y]
+				k.append(ps)
+	if(pt1==0):
+		pt1=cnt
+	if(cnt==0):
+		break
+	pt2=pt2+cnt
+	for p in k:
+		arr[p[1]][p[0]]="."	
 
 print("Part 1 : "+str(pt1))	
+print("Part 2 : "+str(pt2))	
