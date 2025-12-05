@@ -5,6 +5,7 @@ pt2=0
 
 ranges=[]
 
+
 def fixRanges():
 	changes=True
 	while (changes):
@@ -36,10 +37,12 @@ for line in fileinput.input():
 		arr=line.split("-")
 		arr[0]=int(arr[0])
 		arr[1]=int(arr[1])
+		if(arr[1]<=arr[0]):	
+			print(arr)
 		ranges.append(arr)
 		continue
-
 	if(line==""):
+		print ("----")
 		fixRanges()
 		continue
 
@@ -50,13 +53,15 @@ for line in fileinput.input():
 			break
 
 		
-
+ranges.sort()
+rlast=[]
 for r in ranges:
 	if (r[0]==-1):
 		continue
-	
-	if(r[1]<=r[0]):	
-		print(r)
+	if(r == rlast):
+		continue
+	rlast=r
+	print(r)
 	diff=r[1]-r[0]
 	diff=diff+1
 	pt2=pt2+diff
